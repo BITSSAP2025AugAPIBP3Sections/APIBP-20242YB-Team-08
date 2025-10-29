@@ -1,10 +1,10 @@
 package com.sap.bits.api.LeaveScheduler.controller;
-import com.sap.bits.api.LeaveScheduler.dto.LeaveApprovalRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.sap.bits.api.LeaveScheduler.dto.request.LeaveApprovalRequest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
