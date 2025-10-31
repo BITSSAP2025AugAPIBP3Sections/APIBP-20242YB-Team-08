@@ -1,4 +1,9 @@
 type Query {
+    currentUserProfile: UserResponse
+    currentUserLeaveBalances: [LeaveBalanceResponse]
+    userLeaveBalances(userId: ID!): [LeaveBalanceResponse]
+    allUsers: [UserResponse]
+    managedUsers: [UserResponse]
     pendingLeaveApplications: [String!]!
     approvedLeaveApplications: [String!]!
     rejectedLeaveApplications: [String!]!

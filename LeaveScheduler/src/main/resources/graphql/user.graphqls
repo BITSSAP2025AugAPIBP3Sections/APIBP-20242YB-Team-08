@@ -1,0 +1,26 @@
+type UserResponse {
+    id: ID
+    username: String
+    fullName: String
+    email: String
+    roles: [UserRole]
+    department: String
+    managerId: ID
+    managerName: String
+    joiningDate: String
+    phone: String
+    emergencyContact: String
+    isActive: Boolean
+    lastLogin: String
+}
+
+type LeaveBalanceResponse {
+    type: String
+    balance: Float
+}
+
+enum UserRole {
+    EMPLOYEE
+    MANAGER
+    ADMIN
+}
