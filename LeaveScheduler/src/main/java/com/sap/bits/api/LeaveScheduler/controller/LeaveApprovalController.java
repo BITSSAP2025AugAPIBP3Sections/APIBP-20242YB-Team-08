@@ -25,25 +25,34 @@ public class LeaveApprovalController {
         return ResponseEntity.ok(pendingLeaves);
     }
 
-    @PutMapping("/{id}/approve")
-    @Operation(summary = "Approve a leave application")
+    @PutMapping("/{id}/{action}")
+    @Operation(summary = "Approve/Reject a leave application")
     //Authorize only MANAGER role using JWT token
-    public ResponseEntity<String> approveLeave(
-            @PathVariable Long id,
+    public ResponseEntity<String> performAction(
+            @PathVariable Long id, @PathVariable String action,
             @Valid @RequestBody LeaveApprovalRequest request) {
-        String response = "Leave application " + id + " approved.";
-        return ResponseEntity.ok(response);
+        if(action.equalsIgnoreCase("approve")) {
+            String response = "Leave application " + id + " approved.";
+            //Calls the leaveApprovalService.approveLeave(id, request);
+            return ResponseEntity.ok(response);
+        } else if(action.equalsIgnoreCase("reject")) {
+            String response = "Leave application " + id + " rejected.";
+            //Calls the leaveApprovalService.rejectLeave(id, request);
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.badRequest().body("Invalid action. Use 'approve' or 'reject'.");
+        }
     }
 
-    @PutMapping("/{id}/reject")
-    @Operation(summary = "Reject a leave application")
-    //Authorize only MANAGER role using JWT token
-    public ResponseEntity<String> rejectLeave(
-            @PathVariable Long id,
-            @Valid @RequestBody LeaveApprovalRequest request) {
-        String response = "Leave application " + id + " rejected.";
-        return ResponseEntity.ok(response);
-    }
+//    @PutMapping("/{id}/reject")
+//    @Operation(summary = "Reject a leave application")
+//    //Authorize only MANAGER role using JWT token
+//    public ResponseEntity<String> rejectLeave(
+//            @PathVariable Long id,
+//            @Valid @RequestBody LeaveApprovalRequest request) {
+//        String response = "Leave application " + id + " rejected.";
+//        return ResponseEntity.ok(response);
+//    }
 
     @GetMapping("/approved")
     @Operation(summary = "Get approved leave applications")
