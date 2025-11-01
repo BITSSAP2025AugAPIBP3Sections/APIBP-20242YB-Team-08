@@ -1,0 +1,48 @@
+scalar JSON
+scalar Date
+
+type ApiResponse {
+  success: Boolean
+  message: String
+  data: JSON
+}
+
+enum UserRole {
+  EMPLOYEE
+  MANAGER
+  ADMIN
+}
+
+input LoginRequest {
+  username: String!
+  password: String!
+}
+
+input RegisterRequest {
+  username: String!
+  password: String!
+  fullName: String!
+  email: String!
+  roles: [UserRole!]
+  department: String
+  managerId: ID
+  joiningDate: Date
+  phone: String
+  emergencyContact: String
+}
+
+input PasswordChangeRequest {
+  currentPassword: String!
+  newPassword: String!
+  confirmPassword:String!
+}
+
+extend type Mutation {
+  login(loginRequest: LoginRequest!): ApiResponse
+  register(registerRequest: RegisterRequest!): ApiResponse
+  registerBatch(registerRequests: [RegisterRequest!]!): ApiResponse
+  changePassword(passwordChangeRequest: PasswordChangeRequest!): ApiResponse
+  forgotPassword(email: String!): ApiResponse
+  resetPassword(token: String!, newPassword: String!): ApiResponse
+  logout(token: String!): ApiResponse
+}
