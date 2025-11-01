@@ -39,7 +39,7 @@ import jakarta.validation.Valid;
 @SecurityRequirement(name = "bearerAuth")
 public class AdminController {
 
-    @GetMapping("/dashboard-stats")
+    @GetMapping("/stats")
     @Operation(summary = "Get admin dashboard statistics")
     public ResponseEntity<DashboardStatsResponse> getDashboardStats() {
         Map<UserRole, Long> roleDist = new java.util.EnumMap<>(UserRole.class);
@@ -175,14 +175,14 @@ public class AdminController {
         return ResponseEntity.ok(new ApiResponse(true, "Policy deleted (mock)", Map.of("deletedId", id)));
     }
 
-    @PostMapping("/credit-leaves")
+    @PostMapping("/leaves/credit")
     @Operation(summary = "Credit annual leaves to all users")
     public ResponseEntity<ApiResponse> creditAnnualLeaveForAllUsers() {
         return ResponseEntity
                 .ok(new ApiResponse(true, "Annual leave credited to all users (mock)", Map.of("credited", true)));
     }
 
-    @PostMapping("/credit-special-leave")
+    @PostMapping("/leaves/credit-special")
     @Operation(summary = "Credit special leave to specific users")
     public ResponseEntity<List<ApiResponse>> creditSpecialLeave(
             @RequestParam List<Long> userIds,
