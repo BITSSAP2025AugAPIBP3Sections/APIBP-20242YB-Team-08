@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,9 +32,12 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "Authenticate user and return JWT token")
-    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest loginRequest) {
-        String response = "Login Successful";
-        return ResponseEntity.ok(response);
+    public ResponseEntity<ApiResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+        Map<String, String> tokenData = new HashMap<>();
+        tokenData.put("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...");
+        tokenData.put("type", "Bearer");
+        tokenData.put("expiresIn", "3600");
+        return ResponseEntity.ok(new ApiResponse(true, "Login successful", tokenData));
     }
 
     @PostMapping("/register")
@@ -42,7 +46,7 @@ public class AuthController {
         return ResponseEntity.ok(new ApiResponse(true, "User registered successfully"));
     }
 
-    @PostMapping("/register/batch")
+    @PostMapping("/users")
     @Operation(summary = "Register multiple users (mocked)")
     public ResponseEntity<ApiResponse> registerBatch(@Valid @RequestBody List<RegisterRequest> registerRequests) {
         List<Map<String, String>> list = new ArrayList<>();
@@ -70,26 +74,26 @@ public class AuthController {
         return ResponseEntity.ok(new ApiResponse(true, "Users registered successfully (mock)", list));
     }
 
-    @PostMapping("/change-password")
+    @PutMapping("/password")
     @Operation(summary = "Change user password")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ApiResponse> changePassword(@Valid @RequestBody PasswordChangeRequest passwordChangeRequest) {
         return ResponseEntity.ok(new ApiResponse(true, "Password changed successfully"));
     }
 
-    @PostMapping("/forgot-password")
+    @PostMapping("/password/reset-request")
     @Operation(summary = "Send reset password link to user's email")
     public ResponseEntity<ApiResponse> forgotPassword(@RequestParam String email) {
         return ResponseEntity.ok(new ApiResponse(true, "Reset password link sent to email"));
     }
 
-    @PostMapping("/reset-password")
+    @PutMapping("/password/reset")
     @Operation(summary = "Reset user password using token")
     public ResponseEntity<ApiResponse> resetPassword(@RequestParam String token, @RequestParam String newPassword) {
         return ResponseEntity.ok(new ApiResponse(true, "Password reset successfully"));
     }
 
-    @PostMapping("/logout")
+    @PostMapping("/session")
     @Operation(summary = "Logout user", description = "Logs out the currently authenticated user")
     public ResponseEntity<ApiResponse> logout(@RequestHeader("Authorization") String token) {
         return ResponseEntity.ok(new ApiResponse(true, "User Logged out successfully"));
