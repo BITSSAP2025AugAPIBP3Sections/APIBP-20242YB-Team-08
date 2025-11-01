@@ -1,0 +1,28 @@
+type ApiResponse {
+  success: Boolean
+  message: String
+  data: JSON
+}
+
+type DashboardStatsResponse {
+    totalUsers: Int!
+    activeUsers: Int!
+    pendingLeaves: Int!
+    roleDistribution: [RoleDistribution!]!
+}
+
+type UserResponse {
+    id: ID!
+    username: String!
+    fullName: String!
+    email: String!
+    roles: [UserRole!]!
+    department: String
+    managerId: ID
+    managerName: String
+    joiningDate: Date
+    phone: String
+    emergencyContact: String
+    isActive: Boolean!
+    lastLogin: DateTime
+}

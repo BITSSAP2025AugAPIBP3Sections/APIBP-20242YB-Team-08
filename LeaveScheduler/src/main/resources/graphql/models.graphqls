@@ -1,0 +1,15 @@
+type LeavePolicy {
+    id: ID!
+    leaveType: LeaveType!
+    description: String!
+    annualCredit: Float!
+    maxAccumulation: Float
+    isCarryForward: Boolean
+    minDuration: Int
+    maxDuration: Int
+    noticeRequired: Int
+    applicableRoles: [UserRole!]!
+    isActive: Boolean!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+}

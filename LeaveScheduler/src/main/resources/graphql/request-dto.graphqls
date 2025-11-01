@@ -1,0 +1,62 @@
+input LeaveApplicationRequest {
+    startDate: Date!
+    endDate: Date!
+    leaveType: LeaveType!
+    reason: String!
+    contactAddress: String
+    contactPhone: String
+    attachmentPath: String
+}
+
+input LeaveApprovalRequest {
+    status: String!
+    remarks: String
+}
+
+input LeavePolicyRequest {
+    leaveType: LeaveType!
+    description: String!
+    annualCredit: Float!
+    maxAccumulation: Float
+    isCarryForward: Boolean
+    minDuration: Int
+    maxDuration: Int
+    noticeRequired: Int
+    applicableRoles: [UserRole!]
+    isActive: Boolean
+}
+
+input LoginRequest {
+  username: String!
+  password: String!
+}
+
+input PasswordChangeRequest {
+  currentPassword: String!
+  newPassword: String!
+  confirmPassword:String!
+}
+
+input RegisterRequest {
+  username: String!
+  password: String!
+  fullName: String!
+  email: String!
+  roles: [UserRole!]
+  department: String
+  managerId: ID
+  joiningDate: Date
+  phone: String
+  emergencyContact: String
+}
+
+input UserUpdateRequest {
+    fullName: String
+    email: String
+    department: String
+    roles: [UserRole!]
+    managerId: ID
+    password: String
+    isActive: Boolean
+}
+
