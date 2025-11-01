@@ -1,0 +1,103 @@
+scalar DateTime
+
+enum LeaveType {
+    CASUAL
+    SICK
+    EARNED
+    MATERNITY
+    PATERNITY
+    BEREAVEMENT
+    UNPAID
+    COMPENSATORY
+    SPECIAL
+}
+
+type User {
+    id: ID!
+    username: String!
+    fullName: String!
+    email: String!
+    roles: [UserRole!]!
+    department: String
+    managerId: ID
+    managerName: String
+    joiningDate: Date
+    phone: String
+    emergencyContact: String
+    isActive: Boolean!
+    lastLogin: DateTime
+}
+
+type LeavePolicy {
+    id: ID!
+    leaveType: LeaveType!
+    description: String!
+    annualCredit: Float!
+    maxAccumulation: Float
+    isCarryForward: Boolean
+    minDuration: Int
+    maxDuration: Int
+    noticeRequired: Int
+    applicableRoles: [UserRole!]!
+    isActive: Boolean!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+}
+
+type DashboardStats {
+    totalUsers: Int!
+    activeUsers: Int!
+    pendingLeaves: Int!
+    roleDistribution: [RoleDistribution!]!
+}
+
+type RoleDistribution {
+    role: UserRole!
+    count: Int!
+}
+
+input UserUpdateInput {
+    fullName: String
+    email: String
+    department: String
+    roles: [UserRole!]
+    managerId: ID
+    password: String
+    isActive: Boolean
+}
+
+input LeavePolicyInput {
+    leaveType: LeaveType!
+    description: String!
+    annualCredit: Float!
+    maxAccumulation: Float
+    isCarryForward: Boolean
+    minDuration: Int
+    maxDuration: Int
+    noticeRequired: Int
+    applicableRoles: [UserRole!]
+    isActive: Boolean
+}
+
+input CreditSpecialLeaveInput {
+    userIds: [ID!]!
+    leaveType: LeaveType!
+    amount: Float!
+    reason: String!
+}
+
+extend type Query {
+    getDashboardStats: DashboardStats!
+    getAllUsers: [User!]!
+    getManagedUsers(managerId: ID): [User!]!
+    getAllLeavePolicies: [LeavePolicy!]!
+    getLeavePolicyById(id: ID!): LeavePolicy
+}
+
+extend type Mutation {
+    updateUser(userId: ID!, input: UserUpdateInput!): User!
+    createOrUpdateLeavePolicy(input: LeavePolicyInput!): LeavePolicy!
+    deleteLeavePolicy(id: ID!): ApiResponse!
+    creditAnnualLeaveForAllUsers: ApiResponse!
+    creditSpecialLeave(input: CreditSpecialLeaveInput!): [ApiResponse!]!
+}
