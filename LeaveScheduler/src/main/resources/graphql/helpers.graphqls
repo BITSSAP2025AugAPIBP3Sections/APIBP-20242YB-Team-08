@@ -1,0 +1,40 @@
+scalar JSON
+scalar Date
+scalar DateTime
+
+enum LeaveStatus {
+    PENDING,
+    APPROVED,
+    REJECTED,
+    WITHDRAWN
+}
+
+enum LeaveType {
+    CASUAL
+    SICK
+    EARNED
+    MATERNITY
+    PATERNITY
+    BEREAVEMENT
+    UNPAID
+    COMPENSATORY
+    SPECIAL
+}
+
+enum UserRole {
+  EMPLOYEE
+  MANAGER
+  ADMIN
+}
+
+type RoleDistribution {
+    role: UserRole!
+    count: Int!
+}
+
+input CreditSpecialLeaveRequest {
+    userIds: [ID!]!
+    leaveType: LeaveType!
+    amount: Float!
+    reason: String!
+}
