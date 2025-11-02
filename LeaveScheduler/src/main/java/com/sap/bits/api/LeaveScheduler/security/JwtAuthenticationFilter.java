@@ -37,6 +37,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || requestURI.startsWith("/api/auth/register")
                 || requestURI.startsWith("/api/auth/forgot-password")
                 || requestURI.startsWith("/api/auth/reset-password") 
+                || requestURI.startsWith("/graphiql")
+                || requestURI.startsWith("/graphql")
                 || requestURI.startsWith("/favicon.ico")
                 || requestURI.equals("/")) {
             filterChain.doFilter(request, response);
