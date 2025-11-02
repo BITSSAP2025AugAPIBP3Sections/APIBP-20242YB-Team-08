@@ -76,7 +76,7 @@ public class SecurityConfig {
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/auth/logout").authenticated()
+                        .requestMatchers("/api/auth/session").authenticated()
                         .requestMatchers("/api/**").authenticated()
                         .requestMatchers("/api/notifications/**").authenticated()
                         .anyRequest().authenticated())
