@@ -1,0 +1,9 @@
+extend type Mutation {
+  login(loginRequest: LoginRequest!): ApiResponse
+  register(registerRequest: RegisterRequest!): ApiResponse
+  registerBatch(registerRequests: [RegisterRequest!]!): ApiResponse
+  changePassword(passwordChangeRequest: PasswordChangeRequest!): ApiResponse
+  forgotPassword(email: String!): ApiResponse
+  resetPassword(token: String!, newPassword: String!): ApiResponse
+  logout(token: String!): ApiResponse
+}

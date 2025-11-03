@@ -1,0 +1,15 @@
+extend type Query {
+    getDashboardStats: DashboardStatsResponse!
+    getAllUsers: [UserResponse!]!
+    getManagedUsers(managerId: ID): [UserResponse!]!
+    getAllLeavePolicies: [LeavePolicy!]!
+    getLeavePolicyById(id: ID!): LeavePolicy
+}
+
+extend type Mutation {
+    updateUser(userId: ID!, input: UserUpdateRequest!): UserResponse!
+    createOrUpdateLeavePolicy(input: LeavePolicyRequest!): LeavePolicy!
+    deleteLeavePolicy(id: ID!): ApiResponse!
+    creditAnnualLeaveForAllUsers: ApiResponse!
+    creditSpecialLeave(input: CreditSpecialLeaveRequest!): [ApiResponse!]!
+}
