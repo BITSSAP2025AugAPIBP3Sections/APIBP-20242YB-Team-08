@@ -19,16 +19,15 @@ import java.util.List;
 @Tag(name = "Notification Management", description = "Endpoints for managing notifications")
 public class NotificationController {
 
-    // ✅ In-memory mock list
     private final List<Notification> mockNotifications = new ArrayList<>();
 
     public NotificationController() {
-        // ✅ mock user
+
         User user = new User();
         user.setId(1L);
         user.setEmail("demo.user@example.com");
 
-        // ✅ demo notification 1
+
         Notification n1 = new Notification(
                 1L,
                 user,
@@ -41,7 +40,7 @@ public class NotificationController {
                 LocalDateTime.now()
         );
 
-        // ✅ demo notification 2
+
         Notification n2 = new Notification(
                 2L,
                 user,
