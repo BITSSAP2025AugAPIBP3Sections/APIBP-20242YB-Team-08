@@ -1,4 +1,4 @@
-package com.sap.bits.api.LeaveScheduler.controller;
+package com.sap.bits.api.LeaveScheduler.controller.graphql;
 
 import com.sap.bits.api.LeaveScheduler.model.Notification;
 import com.sap.bits.api.LeaveScheduler.dto.response.ApiResponse;
