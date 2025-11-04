@@ -1,9 +1,5 @@
-type LeaveBalanceResponse {
-    leaveType: LeaveType!
-    balance: Float!
-}
-
 extend type Query {
-    getUserById(id: ID!): UserResponse
-    getLeaveBalance(userId: ID!): [LeaveBalanceResponse]
+    getCurrentUserProfile: UserResponse!
+    getCurrentUserLeaveBalances: [LeaveBalanceResponse!]!
+    getUserLeaveBalances(userId: ID!): [LeaveBalanceResponse!]!
 }
