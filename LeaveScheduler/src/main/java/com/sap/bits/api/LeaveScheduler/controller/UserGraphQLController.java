@@ -44,43 +44,4 @@ public class UserGraphQLController {
         balances.add(sick);
         return balances;
     }
-
-    @QueryMapping
-    public List<UserResponse> allUsers() {
-        List<UserResponse> users = new ArrayList<>();
-        UserResponse user1 = new UserResponse();
-        user1.setId(1L);
-        user1.setUsername("john.doe");
-        user1.setFullName("John Doe");
-        user1.setEmail("john.doe@example.com");
-        HashSet<UserRole> roles1 = new HashSet<>();
-        roles1.add(UserRole.EMPLOYEE);
-        user1.setRoles(roles1);
-        user1.setDepartment("IT");
-        user1.setManagerId(2L);
-        user1.setManagerName("Jane Smith");
-        user1.setJoiningDate(null);
-        user1.setPhone("1234567890");
-        user1.setEmergencyContact("9876543210");
-        user1.setLastLogin(null);
-        users.add(user1);
-
-        UserResponse user2 = new UserResponse();
-        user2.setId(2L);
-        user2.setUsername("jane.smith");
-        user2.setFullName("Jane Smith");
-        user2.setEmail("jane.smith@example.com");
-        HashSet<UserRole> roles2 = new HashSet<>();
-        roles2.add(UserRole.MANAGER);
-        user2.setRoles(roles2);
-        user2.setDepartment("HR");
-        user2.setManagerId(null);
-        user2.setManagerName(null);
-        user2.setJoiningDate(null);
-        user2.setPhone("2345678901");
-        user2.setEmergencyContact("8765432109");
-        user2.setLastLogin(null);
-        users.add(user2);
-        return users;
-    }
 }
