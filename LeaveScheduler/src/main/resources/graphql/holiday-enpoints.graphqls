@@ -1,0 +1,16 @@
+extend type Query {
+    # Holiday queries accessible to all authenticated users
+    getAllHolidays: [Holiday!]!
+    getHolidayById(id: ID!): Holiday
+    getHolidaysByYear(year: Int!): [Holiday!]!
+    getHolidaysByMonthAndYear(month: Int!, year: Int!): [Holiday!]!
+    getCalendarView: [Holiday!]!
+}
+
+extend type Mutation {
+    # Holiday mutations (Admin only) - Based on actual HolidayController endpoints
+    createHoliday(input: HolidayRequest!): Holiday!
+    createHolidays(input: [HolidayRequest!]!): [Holiday!]!
+    updateHoliday(id: ID!, input: HolidayUpdateRequest!): Holiday!
+    deleteHoliday(id: ID!): String!
+}

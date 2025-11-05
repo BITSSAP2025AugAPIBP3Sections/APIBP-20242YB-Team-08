@@ -19,36 +19,113 @@ public class HolidayController {
 
     @PostMapping
     @Operation(summary = "Create a new holiday (ADMIN only)")
-    //Authorize only ADMIN role using JWT token
+    //TODO: Add @PreAuthorize("hasRole('ADMIN')") when Spring Security is configured
+    //TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
     public ResponseEntity<Holiday> createHoliday(@Valid @RequestBody Holiday holiday) {
-        // Set creation timestamp
-        holiday.setCreatedAt(LocalDateTime.now());
-        holiday.setUpdatedAt(LocalDateTime.now());
-        
-        // Mock ID assignment (in real app, this would be done by database)
-        holiday.setId(System.currentTimeMillis());
-        
-        return ResponseEntity.ok(holiday);
+        // TODO: Replace with actual holidayService.createHoliday() when service is implemented
+        Holiday createdHoliday = mockCreateHoliday(holiday);
+        return ResponseEntity.ok(createdHoliday);
     }
 
     @PostMapping("/bulk")
     @Operation(summary = "Create multiple holidays (ADMIN only)")
-    //Authorize only ADMIN role using JWT token
+    //TODO: Add @PreAuthorize("hasRole('ADMIN')") when Spring Security is configured
+    //TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
     public ResponseEntity<List<Holiday>> createHolidays(@Valid @RequestBody List<Holiday> holidays) {
-        LocalDateTime now = LocalDateTime.now();
-        
-        for (Holiday holiday : holidays) {
-            holiday.setId(System.currentTimeMillis() + holidays.indexOf(holiday));
-            holiday.setCreatedAt(now);
-            holiday.setUpdatedAt(now);
-        }
-        
-        return ResponseEntity.ok(holidays);
+        // TODO: Replace with actual holidayService.createHolidays() when service is implemented
+        List<Holiday> createdHolidays = mockCreateHolidays(holidays);
+        return ResponseEntity.ok(createdHolidays);
     }
 
     @GetMapping("/")
     @Operation(summary = "Get all holidays")
+    //TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
     public ResponseEntity<List<Holiday>> getAllHolidays() {
+        // TODO: Replace with actual holidayService.getAllHolidays() when service is implemented
+        List<Holiday> holidays = mockGetAllHolidays();
+        return ResponseEntity.ok(holidays);
+    }
+
+    @GetMapping("/{id:\\d+}")
+    @Operation(summary = "Get holiday by ID")
+    //TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
+    public ResponseEntity<Holiday> getHolidayById(@PathVariable Long id) {
+        // TODO: Replace with actual holidayService.getHolidayById() when service is implemented
+        Holiday holiday = mockGetHolidayById(id);
+        return ResponseEntity.ok(holiday);
+    }
+
+    @GetMapping("/year/{year}")
+    @Operation(summary = "Get holidays by year")
+    //TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
+    public ResponseEntity<List<Holiday>> getHolidaysByYear(@PathVariable Integer year) {
+        // TODO: Replace with actual holidayService.getHolidaysByYear() when service is implemented
+        List<Holiday> holidays = mockGetHolidaysByYear(year);
+        return ResponseEntity.ok(holidays);
+    }
+
+    @GetMapping("/month/{month}/year/{year}")
+    @Operation(summary = "Get holidays by month and year")
+    //TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
+    public ResponseEntity<List<Holiday>> getHolidaysByMonthAndYear(
+            @PathVariable Integer month,
+            @PathVariable Integer year) {
+        // TODO: Replace with actual holidayService.getHolidaysByMonthAndYear() when service is implemented
+        List<Holiday> holidays = mockGetHolidaysByMonthAndYear(month, year);
+        return ResponseEntity.ok(holidays);
+    }
+
+    @PutMapping("/{id:\\d+}")
+    @Operation(summary = "Update a holiday (ADMIN only)")
+    //TODO: Add @PreAuthorize("hasRole('ADMIN')") when Spring Security is configured
+    //TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
+    public ResponseEntity<Holiday> updateHoliday(
+            @PathVariable Long id,
+            @Valid @RequestBody Holiday holidayDetails) {
+        // TODO: Replace with actual holidayService.updateHoliday() when service is implemented
+        Holiday updatedHoliday = mockUpdateHoliday(id, holidayDetails);
+        return ResponseEntity.ok(updatedHoliday);
+    }
+
+    @DeleteMapping("/{id:\\d+}")
+    @Operation(summary = "Delete a holiday (ADMIN only)")
+    //TODO: Add @PreAuthorize("hasRole('ADMIN')") when Spring Security is configured
+    //TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
+    public ResponseEntity<String> deleteHoliday(@PathVariable Long id) {
+        // TODO: Replace with actual holidayService.deleteHoliday() when service is implemented
+        String response = mockDeleteHoliday(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/calendar")
+    @Operation(summary = "Get calendar view of holidays")
+    //TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
+    public ResponseEntity<List<Holiday>> getCalendarView() {
+        // TODO: Replace with actual holidayService.getAllHolidays() when service is implemented
+        List<Holiday> holidays = mockGetAllHolidays();
+        return ResponseEntity.ok(holidays);
+    }
+
+    // ============= MOCK METHODS - Replace with actual service calls =============
+    
+    private Holiday mockCreateHoliday(Holiday holiday) {
+        holiday.setId(System.currentTimeMillis());
+        holiday.setCreatedAt(LocalDateTime.now());
+        holiday.setUpdatedAt(LocalDateTime.now());
+        return holiday;
+    }
+    
+    private List<Holiday> mockCreateHolidays(List<Holiday> holidays) {
+        LocalDateTime now = LocalDateTime.now();
+        for (int i = 0; i < holidays.size(); i++) {
+            holidays.get(i).setId(System.currentTimeMillis() + i);
+            holidays.get(i).setCreatedAt(now);
+            holidays.get(i).setUpdatedAt(now);
+        }
+        return holidays;
+    }
+    
+    private List<Holiday> mockGetAllHolidays() {
         List<Holiday> holidays = new ArrayList<>();
         
         Holiday newYear = new Holiday();
@@ -59,6 +136,7 @@ public class HolidayController {
         newYear.setDescription("Celebration of the new year");
         newYear.setIsRecurring(true);
         newYear.setCreatedAt(LocalDateTime.of(2024, 1, 1, 0, 0));
+        newYear.setUpdatedAt(LocalDateTime.of(2024, 1, 1, 0, 0));
         holidays.add(newYear);
         
         Holiday independence = new Holiday();
@@ -69,6 +147,7 @@ public class HolidayController {
         independence.setDescription("National independence celebration");
         independence.setIsRecurring(true);
         independence.setCreatedAt(LocalDateTime.of(2024, 1, 1, 0, 0));
+        independence.setUpdatedAt(LocalDateTime.of(2024, 1, 1, 0, 0));
         holidays.add(independence);
         
         Holiday christmas = new Holiday();
@@ -79,14 +158,13 @@ public class HolidayController {
         christmas.setDescription("Christmas holiday");
         christmas.setIsRecurring(true);
         christmas.setCreatedAt(LocalDateTime.of(2024, 1, 1, 0, 0));
+        christmas.setUpdatedAt(LocalDateTime.of(2024, 1, 1, 0, 0));
         holidays.add(christmas);
         
-        return ResponseEntity.ok(holidays);
+        return holidays;
     }
-
-    @GetMapping("/{id}")
-    @Operation(summary = "Get holiday by ID")
-    public ResponseEntity<Holiday> getHolidayById(@PathVariable Long id) {
+    
+    private Holiday mockGetHolidayById(Long id) {
         Holiday holiday = new Holiday();
         holiday.setId(id);
         holiday.setName("Sample Holiday " + id);
@@ -96,13 +174,10 @@ public class HolidayController {
         holiday.setIsRecurring(false);
         holiday.setCreatedAt(LocalDateTime.now());
         holiday.setUpdatedAt(LocalDateTime.now());
-        
-        return ResponseEntity.ok(holiday);
+        return holiday;
     }
-
-    @GetMapping("/year/{year}")
-    @Operation(summary = "Get holidays by year")
-    public ResponseEntity<List<Holiday>> getHolidaysByYear(@PathVariable Integer year) {
+    
+    private List<Holiday> mockGetHolidaysByYear(Integer year) {
         List<Holiday> holidays = new ArrayList<>();
         
         Holiday holiday1 = new Holiday();
@@ -112,6 +187,8 @@ public class HolidayController {
         holiday1.setType("National");
         holiday1.setDescription("First holiday of " + year);
         holiday1.setIsRecurring(true);
+        holiday1.setCreatedAt(LocalDateTime.now());
+        holiday1.setUpdatedAt(LocalDateTime.now());
         holidays.add(holiday1);
         
         Holiday holiday2 = new Holiday();
@@ -121,16 +198,14 @@ public class HolidayController {
         holiday2.setType("Organizational");
         holiday2.setDescription("Second holiday of " + year);
         holiday2.setIsRecurring(false);
+        holiday2.setCreatedAt(LocalDateTime.now());
+        holiday2.setUpdatedAt(LocalDateTime.now());
         holidays.add(holiday2);
         
-        return ResponseEntity.ok(holidays);
+        return holidays;
     }
-
-    @GetMapping("/month/{month}/year/{year}")
-    @Operation(summary = "Get holidays by month and year")
-    public ResponseEntity<List<Holiday>> getHolidaysByMonthAndYear(
-            @PathVariable Integer month,
-            @PathVariable Integer year) {
+    
+    private List<Holiday> mockGetHolidaysByMonthAndYear(Integer month, Integer year) {
         List<Holiday> holidays = new ArrayList<>();
         
         Holiday holiday = new Holiday();
@@ -140,64 +215,23 @@ public class HolidayController {
         holiday.setType("National");
         holiday.setDescription("Holiday occurring in month " + month + " of year " + year);
         holiday.setIsRecurring(true);
+        holiday.setCreatedAt(LocalDateTime.now());
+        holiday.setUpdatedAt(LocalDateTime.now());
         holidays.add(holiday);
         
-        return ResponseEntity.ok(holidays);
+        return holidays;
     }
-
-    @PutMapping("/{id}")
-    @Operation(summary = "Update a holiday (ADMIN only)")
-    //Authorize only ADMIN role using JWT token
-    public ResponseEntity<Holiday> updateHoliday(
-            @PathVariable Long id,
-            @Valid @RequestBody Holiday holidayDetails) {
+    
+    private Holiday mockUpdateHoliday(Long id, Holiday holidayDetails) {
         holidayDetails.setId(id);
         holidayDetails.setUpdatedAt(LocalDateTime.now());
-        
-        return ResponseEntity.ok(holidayDetails);
+        if (holidayDetails.getCreatedAt() == null) {
+            holidayDetails.setCreatedAt(LocalDateTime.now());
+        }
+        return holidayDetails;
     }
-
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Delete a holiday (ADMIN only)")
-    //Authorize only ADMIN role using JWT token
-    public ResponseEntity<String> deleteHoliday(@PathVariable Long id) {
-        String response = "Holiday " + id + " deleted successfully.";
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/calendar")
-    @Operation(summary = "Get calendar view of holidays")
-    public ResponseEntity<List<Holiday>> getCalendarView() {
-        // Reuse the getAllHolidays logic for calendar view
-        List<Holiday> holidays = new ArrayList<>();
-        
-        Holiday newYear = new Holiday();
-        newYear.setId(1L);
-        newYear.setName("New Year's Day");
-        newYear.setDate(LocalDate.of(2024, 1, 1));
-        newYear.setType("National");
-        newYear.setDescription("Celebration of the new year");
-        newYear.setIsRecurring(true);
-        holidays.add(newYear);
-        
-        Holiday independence = new Holiday();
-        independence.setId(2L);
-        independence.setName("Independence Day");
-        independence.setDate(LocalDate.of(2024, 7, 4));
-        independence.setType("National");
-        independence.setDescription("National independence celebration");
-        independence.setIsRecurring(true);
-        holidays.add(independence);
-        
-        Holiday christmas = new Holiday();
-        christmas.setId(3L);
-        christmas.setName("Christmas");
-        christmas.setDate(LocalDate.of(2024, 12, 25));
-        christmas.setType("National");
-        christmas.setDescription("Christmas holiday");
-        christmas.setIsRecurring(true);
-        holidays.add(christmas);
-        
-        return ResponseEntity.ok(holidays);
+    
+    private String mockDeleteHoliday(Long id) {
+        return "Holiday " + id + " deleted successfully.";
     }
 }

@@ -1,0 +1,5 @@
+extend type Query {
+    # Audit Log queries accessible to admins only
+    # Based on actual AuditLogController endpoints
+    getAllAuditLogs: [AuditLog!]!
+}
