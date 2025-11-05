@@ -1,0 +1,25 @@
+
+type LeaveApplication {
+    id: ID
+    startDate: String
+    endDate: String
+    leaveType: String
+    reason: String
+    status: String
+    appliedOn: String
+}
+
+type Holiday {
+    id: ID
+    name: String
+    date: String
+    type: String
+    description: String
+    isRecurring: Boolean
+}
+
+extend type Query {
+    leaveUsageReport: [LeaveApplication!]!
+    pendingApprovalsReport: [LeaveApplication!]!
+    holidayScheduleReport: [Holiday!]!
+}
