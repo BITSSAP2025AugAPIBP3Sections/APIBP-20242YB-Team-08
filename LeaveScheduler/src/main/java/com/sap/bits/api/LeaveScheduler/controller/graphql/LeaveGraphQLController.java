@@ -1,4 +1,4 @@
-package com.sap.bits.api.LeaveScheduler.controller;
+package com.sap.bits.api.LeaveScheduler.controller.graphql;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
