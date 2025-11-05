@@ -1,18 +1,3 @@
-type LeaveResponse {
-    id: ID!
-    userId: ID!
-    username: String!
-    startDate: Date!
-    endDate: Date!
-    reason: String!
-    status: String
-    appliedOn: Date!
-}
-
-type LeaveBalanceResponse {
-    balance: Float!
-}
-
 type LeaveStats {
     totalBalance: Float!
     totalUsed: Float!

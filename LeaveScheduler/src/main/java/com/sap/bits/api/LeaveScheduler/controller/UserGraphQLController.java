@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import com.sap.bits.api.LeaveScheduler.dto.response.LeaveBalanceResponse;
 import com.sap.bits.api.LeaveScheduler.dto.response.UserResponse;
 import com.sap.bits.api.LeaveScheduler.model.enums.UserRole;
+import com.sap.bits.api.LeaveScheduler.model.enums.LeaveType;
 
 @Controller
 public class UserGraphQLController {
@@ -54,8 +55,10 @@ public class UserGraphQLController {
         List<LeaveBalanceResponse> balances = new ArrayList<>();
         LeaveBalanceResponse annual = new LeaveBalanceResponse();
         annual.setBalance(8f);
+        annual.setLeaveType(LeaveType.CASUAL);
         balances.add(annual);
         LeaveBalanceResponse sick = new LeaveBalanceResponse();
+        sick.setLeaveType(LeaveType.SICK);
         sick.setBalance(2f);
         balances.add(sick);
         return balances;
