@@ -19,7 +19,7 @@ public class LeaveSchedulerApplication {
         System.setProperty("SPRING_DATASOURCE_USERNAME", dotenv.get("SPRING_DATASOURCE_USERNAME"));
         // System.setProperty("MYSQL_USERNAME", dotenv.get("MYSQL_USERNAME"));
         // System.setProperty("MYSQL_PASSWORD", dotenv.get("MYSQL_PASSWORD"));
-        System.setProperty("MYSQL_URL", dotenv.get("MYSQL_URL"));
+//        System.setProperty("MYSQL_URL", dotenv.get("MYSQL_URL"));
         System.setProperty("SPRING_MAIL_USERNAME", dotenv.get("SPRING_MAIL_USERNAME"));
         System.setProperty("SPRING_MAIL_PASSWORD", dotenv.get("SPRING_MAIL_PASSWORD"));
         SpringApplication.run(LeaveSchedulerApplication.class, args);
