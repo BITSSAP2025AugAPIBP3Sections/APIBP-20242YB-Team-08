@@ -118,7 +118,7 @@ GraphQL API also provides similar functionality. Some key queries and mutations 
 | GraphQL  | `applyLeave` | Apply for leave |
 | GraphQL  | `withdrawLeave` | Withdraw a leave application |
 
-For a complete list of endpoints and detailed API documentation, please refer to the Swagger UI for REST API and GraphiQL interface for GraphQL API.
+For a complete list of endpoints and detailed API documentation, please refer to the [ for REST API and GraphiQL interface for GraphQL API.
 
 ## REST API
 The REST API can be explored and tested using Swagger UI.
