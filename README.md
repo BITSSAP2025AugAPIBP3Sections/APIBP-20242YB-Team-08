@@ -120,19 +120,27 @@ GraphQL API also provides similar functionality. Some key queries and mutations 
 
 For a complete list of endpoints and detailed API documentation, please refer to the Swagger UI for REST API and GraphiQL interface for GraphQL API.
 
-### REST API
+## REST API
 The REST API can be explored and tested using Swagger UI.
 
-### GraphQL API
-The GraphQL API can be explored and tested using the GraphiQL interface:
-- Access GraphiQL: `http://localhost:8080/graphiql` (when running locally)
-- In the GraphiQL interface, you can write and execute GraphQL queries and mutations
-- The schema explorer in GraphiQL provides details about available types and operations
 
-## Swagger UI
+### Swagger UI
 Swagger UI is available for exploring and testing the REST API:
 - Access Swagger UI: `http://localhost:8080/swagger-ui.html`
 - API documentation: `http://localhost:8080/v3/api-docs`
+- Local copy of the api-docs included for quick reference: [openapi.json](https://github.com/BITSSAP2025AugAPIBP3Sections/APIBP-20242YB-Team-08/blob/main/LeaveScheduler/openapi.json)
+
+### GraphQL API
+The GraphQL API can be explored and tested using the GraphiQL interface:
+#### When running locally
+- Access GraphiQL: `http://localhost:8080/graphiql` 
+- In the GraphiQL interface, you can write and execute GraphQL queries and mutations
+- The schema explorer in GraphiQL provides details about available types and operations
+#### Without running locally 
+- For visual representation of the GraphQL schema:
+  - Go to [api-voyager](https://apis.guru/graphql-voyager/)
+  - Click on "Change schema" > "Introspection"
+  - Paste the [introspection.json](https://github.com/BITSSAP2025AugAPIBP3Sections/APIBP-20242YB-Team-08/blob/main/LeaveScheduler/introspection.json) in the text area and hit display
 
 ## Key Actors
 1. Employees: Can apply for leave, view their leave history, and check leave balances.
