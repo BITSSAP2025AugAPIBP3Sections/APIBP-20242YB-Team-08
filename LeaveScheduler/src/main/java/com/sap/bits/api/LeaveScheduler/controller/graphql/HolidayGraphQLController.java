@@ -1,114 +1,78 @@
-package com.sap.bits.api.LeaveScheduler.controller;
-
-import com.sap.bits.api.LeaveScheduler.model.Holiday;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+package com.sap.bits.api.LeaveScheduler.controller.graphql;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/holidays")
-@Tag(name = "Holiday Management", description = "Endpoints for managing holidays")
-public class HolidayController {
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.stereotype.Controller;
 
-    // TODO: Replace with @Autowired HolidayService holidayService when service is implemented
+import com.sap.bits.api.LeaveScheduler.model.Holiday;
 
-    @PostMapping
-    @Operation(summary = "Create a new holiday (ADMIN only)")
-    // TODO: Add @PreAuthorize("hasRole('ADMIN')") when Spring Security is configured
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
-    public ResponseEntity<Holiday> createHoliday(@Valid @RequestBody Holiday holiday) {
-        // TODO: Replace with holidayService.createHoliday(holiday) when service is implemented
-        Holiday createdHoliday = mockCreateHoliday(holiday);
-        return ResponseEntity.ok(createdHoliday);
-    }
+@Controller
+public class HolidayGraphQLController {
 
-    @PostMapping("/bulk")
-    @Operation(summary = "Create multiple holidays (ADMIN only)")
-    // TODO: Add @PreAuthorize("hasRole('ADMIN')") when Spring Security is configured
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
-    public ResponseEntity<List<Holiday>> createHolidays(@Valid @RequestBody List<Holiday> holidays) {
-        // TODO: Replace with holidayService.createHolidays(holidays) when service is implemented
-        List<Holiday> createdHolidays = mockCreateHolidays(holidays);
-        return ResponseEntity.ok(createdHolidays);
-    }
-
-    @GetMapping("/")
-    @Operation(summary = "Get all holidays")
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
-    public ResponseEntity<List<Holiday>> getAllHolidays() {
+    // Query Resolvers
+    @QueryMapping
+    public List<Holiday> getAllHolidays() {
         // TODO: Replace with holidayService.getAllHolidays() when service is implemented
-        List<Holiday> holidays = mockGetAllHolidays();
-        return ResponseEntity.ok(holidays);
+        return mockGetAllHolidays();
     }
 
-    @GetMapping("/{id:\\d+}")
-    @Operation(summary = "Get holiday by ID")
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
-    public ResponseEntity<Holiday> getHolidayById(@PathVariable Long id) {
+    @QueryMapping
+    public Holiday getHolidayById(@Argument Long id) {
         // TODO: Replace with holidayService.getHolidayById(id) when service is implemented
-        Holiday holiday = mockGetHolidayById(id);
-        return ResponseEntity.ok(holiday);
+        return mockGetHolidayById(id);
     }
 
-    @GetMapping("/year/{year}")
-    @Operation(summary = "Get holidays by year")
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
-    public ResponseEntity<List<Holiday>> getHolidaysByYear(@PathVariable Integer year) {
+    @QueryMapping
+    public List<Holiday> getHolidaysByYear(@Argument Integer year) {
         // TODO: Replace with holidayService.getHolidaysByYear(year) when service is implemented
-        List<Holiday> holidays = mockGetHolidaysByYear(year);
-        return ResponseEntity.ok(holidays);
+        return mockGetHolidaysByYear(year);
     }
 
-    @GetMapping("/month/{month}/year/{year}")
-    @Operation(summary = "Get holidays by month and year")
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
-    public ResponseEntity<List<Holiday>> getHolidaysByMonthAndYear(
-            @PathVariable Integer month,
-            @PathVariable Integer year) {
+    @QueryMapping
+    public List<Holiday> getHolidaysByMonthAndYear(@Argument Integer month, @Argument Integer year) {
         // TODO: Replace with holidayService.getHolidaysByMonthAndYear(month, year) when service is implemented
-        List<Holiday> holidays = mockGetHolidaysByMonthAndYear(month, year);
-        return ResponseEntity.ok(holidays);
+        return mockGetHolidaysByMonthAndYear(month, year);
     }
 
-    @PutMapping("/{id:\\d+}")
-    @Operation(summary = "Update a holiday (ADMIN only)")
-    // TODO: Add @PreAuthorize("hasRole('ADMIN')") when Spring Security is configured
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
-    public ResponseEntity<Holiday> updateHoliday(
-            @PathVariable Long id,
-            @Valid @RequestBody Holiday holidayDetails) {
-        // TODO: Replace with holidayService.updateHoliday(id, holidayDetails) when service is implemented
-        Holiday updatedHoliday = mockUpdateHoliday(id, holidayDetails);
-        return ResponseEntity.ok(updatedHoliday);
-    }
-
-    @DeleteMapping("/{id:\\d+}")
-    @Operation(summary = "Delete a holiday (ADMIN only)")
-    // TODO: Add @PreAuthorize("hasRole('ADMIN')") when Spring Security is configured
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
-    public ResponseEntity<String> deleteHoliday(@PathVariable Long id) {
-        // TODO: Replace with holidayService.deleteHoliday(id) when service is implemented (originally returned ApiResponse)
-        String response = mockDeleteHoliday(id);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/calendar")
-    @Operation(summary = "Get calendar view of holidays")
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
-    public ResponseEntity<List<Holiday>> getCalendarView() {
+    @QueryMapping
+    public List<Holiday> getCalendarView() {
         // TODO: Replace with holidayService.getAllHolidays() when service is implemented
-        List<Holiday> holidays = mockGetAllHolidays();
-        return ResponseEntity.ok(holidays);
+        return mockGetAllHolidays();
+    }
+
+    // Mutation Resolvers
+    @MutationMapping
+    public Holiday createHoliday(@Argument Holiday input) {
+        // TODO: Replace with holidayService.createHoliday(input) when service is implemented
+        return mockCreateHoliday(input);
+    }
+
+    @MutationMapping
+    public List<Holiday> createHolidays(@Argument List<Holiday> input) {
+        // TODO: Replace with holidayService.createHolidays(input) when service is implemented
+        return mockCreateHolidays(input);
+    }
+
+    @MutationMapping
+    public Holiday updateHoliday(@Argument Long id, @Argument Holiday input) {
+        // TODO: Replace with holidayService.updateHoliday(id, input) when service is implemented
+        return mockUpdateHoliday(id, input);
+    }
+
+    @MutationMapping
+    public String deleteHoliday(@Argument Long id) {
+        // TODO: Replace with holidayService.deleteHoliday(id) when service is implemented
+        return mockDeleteHoliday(id);
     }
 
     // ============= PLACEHOLDER MOCK METHODS - Replace with actual service calls =============
+    // These methods mirror the same logic from HolidayController
     
     private Holiday mockCreateHoliday(Holiday holiday) {
         holiday.setId(System.currentTimeMillis());

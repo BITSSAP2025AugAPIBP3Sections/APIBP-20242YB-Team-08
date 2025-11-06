@@ -60,3 +60,11 @@ input UserUpdateRequest {
     isActive: Boolean
 }
 
+input HolidayInput {
+    name: String!
+    date: Date!
+    type: String
+    description: String
+    isRecurring: Boolean
+}
+
