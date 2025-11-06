@@ -37,9 +37,9 @@ type LeaveApplication {
 }
 
 type Holiday {
-    id: ID
-    name: String
-    date: Date
+    id: ID!
+    name: String!
+    date: Date!
     type: String
     description: String
     isRecurring: Boolean

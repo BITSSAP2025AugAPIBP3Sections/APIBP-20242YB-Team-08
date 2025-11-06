@@ -23,9 +23,9 @@ public class HolidayGraphQLController {
     }
 
     @QueryMapping
-    public Holiday getHolidayById(@Argument String id) {
+    public Holiday getHolidayById(@Argument Long id) {
         // TODO: Replace with holidayService.getHolidayById(id) when service is implemented
-        return mockGetHolidayById(Long.parseLong(id));
+        return mockGetHolidayById(id);
     }
 
     @QueryMapping
@@ -60,15 +60,15 @@ public class HolidayGraphQLController {
     }
 
     @MutationMapping
-    public Holiday updateHoliday(@Argument String id, @Argument Holiday input) {
+    public Holiday updateHoliday(@Argument Long id, @Argument Holiday input) {
         // TODO: Replace with holidayService.updateHoliday(id, input) when service is implemented
-        return mockUpdateHoliday(Long.parseLong(id), input);
+        return mockUpdateHoliday(id, input);
     }
 
     @MutationMapping
-    public String deleteHoliday(@Argument String id) {
+    public String deleteHoliday(@Argument Long id) {
         // TODO: Replace with holidayService.deleteHoliday(id) when service is implemented
-        return mockDeleteHoliday(Long.parseLong(id));
+        return mockDeleteHoliday(id);
     }
 
     // ============= PLACEHOLDER MOCK METHODS - Replace with actual service calls =============
