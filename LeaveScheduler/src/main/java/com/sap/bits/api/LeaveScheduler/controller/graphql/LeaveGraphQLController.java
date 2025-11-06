@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.sap.bits.api.LeaveScheduler.model.enums.LeaveType;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -26,12 +27,27 @@ public class LeaveGraphQLController {
     @QueryMapping
     public List<LeaveBalanceResponse> userLeaveBalances(@Argument Long userId) {
         List<LeaveBalanceResponse> balances = new ArrayList<>();
+
         LeaveBalanceResponse annual = new LeaveBalanceResponse();
+        annual.setId(1L);
+        annual.setUserId(userId);
+        annual.setLeaveType(LeaveType.CASUAL); // Assuming leaveType is a String or enum name
         annual.setBalance(8f);
+        annual.setUsed(4f);
+        annual.setYear(2024);
+        annual.setLeaveTypeName("Annual Leave");
         balances.add(annual);
+
         LeaveBalanceResponse sick = new LeaveBalanceResponse();
+        sick.setId(2L);
+        sick.setUserId(userId);
+        sick.setLeaveType(LeaveType.SICK);
         sick.setBalance(2f);
+        sick.setUsed(1f);
+        sick.setYear(2024);
+        sick.setLeaveTypeName("Sick Leave");
         balances.add(sick);
+
         return balances;
     }
 
@@ -86,14 +102,27 @@ class LeaveApplicationInput {
 
     @QueryMapping
     public List<LeaveBalanceResponse> getLeaveEligibilityDetails() {
-        List<LeaveBalanceResponse> eligibilityDetails = new ArrayList<>();
+        List<LeaveBalanceResponse> balances = new ArrayList<>();
+
         LeaveBalanceResponse annual = new LeaveBalanceResponse();
-        annual.setBalance(10f);
-        eligibilityDetails.add(annual);
+        annual.setId(1L);
+        annual.setLeaveType(LeaveType.CASUAL); // Assuming leaveType is a String or enum name
+        annual.setBalance(8f);
+        annual.setUsed(4f);
+        annual.setYear(2024);
+        annual.setLeaveTypeName("Annual Leave");
+        balances.add(annual);
+
         LeaveBalanceResponse sick = new LeaveBalanceResponse();
-        sick.setBalance(5f);
-        eligibilityDetails.add(sick);
-        return eligibilityDetails;
+        sick.setId(2L);
+        sick.setLeaveType(LeaveType.SICK);
+        sick.setBalance(2f);
+        sick.setUsed(1f);
+        sick.setYear(2024);
+        sick.setLeaveTypeName("Sick Leave");
+        balances.add(sick);
+
+        return balances;
     }
 
     @QueryMapping

@@ -28,12 +28,12 @@ type UserResponse {
 }
 type LeaveBalanceResponse {
     id: ID!
-    userId: ID!
+    userId: ID
     leaveType: LeaveType!
     balance: Float!
     used: Float!
     year: Int!
-    leaveTypeName: String!
+    leaveTypeName: String
 }
 
 type LeaveResponse {
