@@ -13,3 +13,34 @@ type LeavePolicy {
     createdAt: DateTime!
     updatedAt: DateTime!
 }
+
+type Notification {
+    id: ID!
+    title: String!
+    message: String!
+    isRead: Boolean!
+    type: String!
+    relatedEntityId: ID
+    createdAt: String
+    updatedAt: String
+}
+
+
+type LeaveApplication {
+    id: ID
+    startDate: String
+    endDate: String
+    leaveType: String
+    reason: String
+    status: String
+    appliedOn: String
+}
+
+type Holiday {
+    id: ID
+    name: String
+    date: String
+    type: String
+    description: String
+    isRecurring: Boolean
+}

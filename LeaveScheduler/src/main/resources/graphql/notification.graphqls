@@ -1,18 +1,3 @@
-"""
-GraphQL schema for Notifications
-"""
-
-type Notification {
-    id: ID!
-    title: String!
-    message: String!
-    isRead: Boolean!
-    type: String!
-    relatedEntityId: ID
-    createdAt: String
-    updatedAt: String
-}
-
 extend type Query {
     notifications: [Notification!]!
     unreadNotifications: [Notification!]!
