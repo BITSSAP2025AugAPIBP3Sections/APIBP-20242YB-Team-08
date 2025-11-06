@@ -26,3 +26,24 @@ type UserResponse {
     isActive: Boolean!
     lastLogin: DateTime
 }
+type LeaveBalanceResponse {
+    id: ID!
+    userId: ID
+    leaveType: LeaveType!
+    balance: Float!
+    used: Float!
+    year: Int!
+    leaveTypeName: String
+}
+
+type LeaveResponse {
+    id: ID!
+    userId: ID!
+    username: String!
+    startDate: Date!
+    endDate: Date!
+    reason: String!
+    status: String
+    appliedOn: Date!
+}
+

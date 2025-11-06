@@ -1,0 +1,29 @@
+type LeaveStats {
+    totalBalance: Float!
+    totalUsed: Float!
+    pendingLeaves: Int!
+}
+
+extend type Query {
+    currentUserLeaves: [LeaveResponse!]!
+    userLeaveBalances(userId: ID!): [LeaveBalanceResponse!]!
+    managedUsers: [LeaveResponse!]!
+    getLeaveEligibilityDetails: [LeaveBalanceResponse!]!
+    getCurrentUserPendingLeaves: [LeaveResponse!]!
+    getLeaveById(id: ID!): LeaveResponse!
+    getLeaveHistory: [LeaveResponse!]!
+    getLeaveHistoryWithFilters(startDate: Date, endDate: Date, leaveType: String): [LeaveResponse!]!
+    getLeaveStats: LeaveStats!
+}
+
+extend type Mutation {
+    applyLeave(request: LeaveApplicationInput!): LeaveResponse!
+    withdrawLeave(id: ID!): String!
+}
+
+input LeaveApplicationInput {
+    startDate: Date!
+    endDate: Date!
+    reason: String!
+    leaveType: String!
+}

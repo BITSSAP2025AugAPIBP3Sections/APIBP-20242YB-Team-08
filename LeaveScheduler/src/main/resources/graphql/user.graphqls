@@ -1,0 +1,5 @@
+extend type Query {
+    getCurrentUserProfile: UserResponse!
+    getCurrentUserLeaveBalances: [LeaveBalanceResponse!]!
+    getUserLeaveBalances(userId: ID!): [LeaveBalanceResponse!]!
+}
