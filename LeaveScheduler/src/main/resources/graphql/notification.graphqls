@@ -1,0 +1,10 @@
+extend type Query {
+    notifications: [Notification!]!
+    unreadNotifications: [Notification!]!
+    unreadNotificationCount: Int!
+}
+
+extend type Mutation {
+    markNotificationAsRead(id: ID!): Notification
+    markAllNotificationsAsRead: ApiResponse!
+}

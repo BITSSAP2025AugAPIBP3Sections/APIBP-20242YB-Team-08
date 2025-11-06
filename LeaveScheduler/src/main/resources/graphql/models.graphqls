@@ -14,7 +14,6 @@ type LeavePolicy {
     updatedAt: DateTime!
 }
 
-
 type Notification {
     id: ID!
     title: String!
@@ -26,13 +25,22 @@ type Notification {
     updatedAt: String
 }
 
-extend type Query {
-    notifications: [Notification!]!
-    unreadNotifications: [Notification!]!
-    unreadNotificationCount: Int!
+
+type LeaveApplication {
+    id: ID
+    startDate: String
+    endDate: String
+    leaveType: String
+    reason: String
+    status: String
+    appliedOn: String
 }
 
-extend type Mutation {
-    markNotificationAsRead(id: ID!): Notification
-    markAllNotificationsAsRead: ApiResponse!
+type Holiday {
+    id: ID
+    name: String
+    date: String
+    type: String
+    description: String
+    isRecurring: Boolean
 }
