@@ -1,0 +1,14 @@
+extend type Query {
+    getAllHolidays: [Holiday!]!
+    getHolidayById(id: ID!): Holiday
+    getHolidaysByYear(year: Int!): [Holiday!]!
+    getHolidaysByMonthAndYear(month: Int!, year: Int!): [Holiday!]!
+    getCalendarView: [Holiday!]!
+}
+
+extend type Mutation {
+    createHoliday(input: HolidayInput!): Holiday!
+    createHolidays(input: [HolidayInput!]!): [Holiday!]!
+    updateHoliday(id: ID!, input: HolidayInput!): Holiday!
+    deleteHoliday(id: ID!): String!
+}

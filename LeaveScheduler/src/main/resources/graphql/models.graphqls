@@ -39,8 +39,19 @@ type LeaveApplication {
 type Holiday {
     id: ID
     name: String
-    date: String
+    date: Date
     type: String
     description: String
     isRecurring: Boolean
+    createdAt: DateTime
+    updatedAt: DateTime
+}
+
+type AuditLog {
+    id: ID!
+    adminId: ID
+    action: String!
+    details: String
+    actionTimestamp: DateTime!
+    leaveApplication: LeaveApplication
 }
