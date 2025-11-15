@@ -1,13 +1,14 @@
 package com.sap.bits.api.LeaveScheduler.controller;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import com.sap.bits.api.LeaveScheduler.dto.response.JwtResponse;
+import com.sap.bits.api.LeaveScheduler.model.User;
+import com.sap.bits.api.LeaveScheduler.service.AuthService;
+import org.apache.coyote.BadRequestException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,73 +30,55 @@ import jakarta.validation.Valid;
 @Tag(name = "Authentication", description = "Endpoints for user authentication and registration")
 public class AuthController {
 
+    @Autowired
+    private AuthService authService;
 
     @PostMapping("/login")
     @Operation(summary = "Authenticate user and return JWT token")
-    public ResponseEntity<ApiResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
-        Map<String, String> tokenData = new HashMap<>();
-        tokenData.put("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...");
-        tokenData.put("type", "Bearer");
-        tokenData.put("expiresIn", "3600");
-        return ResponseEntity.ok(new ApiResponse(true, "Login successful", tokenData));
+    public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) throws BadRequestException {
+        JwtResponse response = authService.login(loginRequest);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")
     @Operation(summary = "Register a new user")
-    public ResponseEntity<ApiResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<ApiResponse> register(@Valid @RequestBody RegisterRequest registerRequest) throws BadRequestException {
+        authService.register(registerRequest);
         return ResponseEntity.ok(new ApiResponse(true, "User registered successfully"));
     }
 
-    @PostMapping("/users")
-    @Operation(summary = "Register multiple users (mocked)")
-    public ResponseEntity<ApiResponse> registerBatch(@Valid @RequestBody List<RegisterRequest> registerRequests) {
-        List<Map<String, String>> list = new ArrayList<>();
-
-        Map<String, String> user1 = new HashMap<>();
-        user1.put("username", "john.doe");
-        user1.put("fullName", "John Doe");
-        user1.put("email", "john.doe@example.com");
-        user1.put("roles", "EMPLOYEE");
-        user1.put("department", "Engineering");
-        user1.put("phone", "+1-555-0101");
-        user1.put("emergencyContact", "Jane Doe: +1-555-0199");
-
-        Map<String, String> user2 = new HashMap<>();
-        user2.put("username", "mary.smith");
-        user2.put("fullName", "Mary Smith");
-        user2.put("email", "mary.smith@example.com");
-        user2.put("roles", "MANAGER");
-        user2.put("department", "HR");
-        user2.put("phone", "+1-555-0202");
-        user2.put("emergencyContact", "Mark Smith: +1-555-0299");
-
-        list.add(user1);
-        list.add(user2);
-        return ResponseEntity.ok(new ApiResponse(true, "Users registered successfully (mock)", list));
+    @PostMapping("/register/batch")
+    @Operation(summary = "Register multiple users")
+    public ResponseEntity<ApiResponse> registerBatch(@Valid @RequestBody List<RegisterRequest> registerRequests) throws BadRequestException {
+        List<User> registeredUsers = authService.register(registerRequests);
+        return ResponseEntity.ok(new ApiResponse(true, "Users registered successfully", registeredUsers));
     }
 
-    @PutMapping("/password")
+    @PostMapping("/change-password")
     @Operation(summary = "Change user password")
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<ApiResponse> changePassword(@Valid @RequestBody PasswordChangeRequest passwordChangeRequest) {
+    public ResponseEntity<ApiResponse> changePassword(@Valid @RequestBody PasswordChangeRequest passwordChangeRequest) throws BadRequestException {
+        authService.changePassword(passwordChangeRequest);
         return ResponseEntity.ok(new ApiResponse(true, "Password changed successfully"));
     }
 
-    @PostMapping("/password/reset-request")
+    @PostMapping("/forgot-password")
     @Operation(summary = "Send reset password link to user's email")
-    public ResponseEntity<ApiResponse> forgotPassword(@RequestParam String email) {
+    public ResponseEntity<ApiResponse> forgotPassword(@RequestParam String email) throws BadRequestException {
+        authService.forgotPassword(email);
         return ResponseEntity.ok(new ApiResponse(true, "Reset password link sent to email"));
     }
 
-    @PutMapping("/password/reset")
+    @PostMapping("/reset-password")
     @Operation(summary = "Reset user password using token")
-    public ResponseEntity<ApiResponse> resetPassword(@RequestParam String token, @RequestParam String newPassword) {
+    public ResponseEntity<ApiResponse> resetPassword(@RequestParam String token, @RequestParam String newPassword) throws BadRequestException {
+        authService.resetPassword(token, newPassword);
         return ResponseEntity.ok(new ApiResponse(true, "Password reset successfully"));
     }
 
-    @PostMapping("/session")
+    @PostMapping("/logout")
     @Operation(summary = "Logout user", description = "Logs out the currently authenticated user")
-    public ResponseEntity<ApiResponse> logout(@RequestHeader("Authorization") String token) {
-        return ResponseEntity.ok(new ApiResponse(true, "User Logged out successfully"));
+    public ApiResponse logout(@RequestHeader("Authorization") String token) {
+        return authService.logout(token);
     }
 }
