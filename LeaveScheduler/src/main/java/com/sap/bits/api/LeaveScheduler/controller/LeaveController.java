@@ -1,37 +1,45 @@
 package com.sap.bits.api.LeaveScheduler.controller;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.sap.bits.api.LeaveScheduler.dto.request.LeaveApplicationRequest;
+import com.sap.bits.api.LeaveScheduler.dto.response.CalendarEventResponse;
 import com.sap.bits.api.LeaveScheduler.dto.response.LeaveBalanceResponse;
 import com.sap.bits.api.LeaveScheduler.dto.response.LeaveResponse;
-import com.sap.bits.api.LeaveScheduler.dto.response.UserResponse;
+import com.sap.bits.api.LeaveScheduler.model.enums.LeaveType;
+import com.sap.bits.api.LeaveScheduler.service.LeaveService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/leave-applications")
 @Tag(name = "Leave Management", description = "Endpoints for leave applications")
 public class LeaveController {
 
+    @Autowired
+    private LeaveService leaveService;
+
     @PostMapping
     @Operation(summary = "Apply for leave")
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<LeaveResponse> applyLeave(@RequestBody Object request) {
-        LeaveResponse response = new LeaveResponse();
-        response.setId(1L);
-        response.setUserId(1L);
-        response.setUsername("john.doe");
-        response.setStartDate(LocalDate.now());
-        response.setEndDate(LocalDate.now().plusDays(2));
-        response.setReason("Vacation");
-        response.setStatus(null);
-        response.setAppliedOn(LocalDateTime.now());
+    public ResponseEntity<LeaveResponse> applyLeave(@Valid @RequestBody LeaveApplicationRequest request) {
+        LeaveResponse response = leaveService.applyLeave(request);
         return ResponseEntity.ok(response);
     }
 
@@ -39,17 +47,7 @@ public class LeaveController {
     @Operation(summary = "Get current user's leave applications")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<List<LeaveResponse>> getCurrentUserLeaves() {
-        List<LeaveResponse> leaves = new ArrayList<>();
-        LeaveResponse leave = new LeaveResponse();
-        leave.setId(1L);
-        leave.setUserId(1L);
-        leave.setUsername("john.doe");
-        leave.setStartDate(LocalDate.now());
-        leave.setEndDate(LocalDate.now().plusDays(2));
-        leave.setReason("Vacation");
-        leave.setStatus(null);
-        leave.setAppliedOn(LocalDateTime.now());
-        leaves.add(leave);
+       List<LeaveResponse> leaves = leaveService.getCurrentUserLeaves();
         return ResponseEntity.ok(leaves);
     }
 
@@ -57,47 +55,23 @@ public class LeaveController {
     @Operation(summary = "Get leave eligibility details for the current user")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<List<LeaveBalanceResponse>> getLeaveEligibilityDetails() {
-        List<LeaveBalanceResponse> eligibilityDetails = new ArrayList<>();
-        LeaveBalanceResponse annual = new LeaveBalanceResponse();
-        annual.setBalance(10f);
-        eligibilityDetails.add(annual);
-        LeaveBalanceResponse sick = new LeaveBalanceResponse();
-        sick.setBalance(5f);
-        eligibilityDetails.add(sick);
+           List<LeaveBalanceResponse> eligibilityDetails = leaveService.getLeaveEligibilityDetails();
         return ResponseEntity.ok(eligibilityDetails);
     }
 
     @GetMapping("/pending")
     @Operation(summary = "Get current user's pending leave applications")
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<List<LeaveResponse>> getCurrentUserPendingLeaves() {
-        List<LeaveResponse> leaves = new ArrayList<>();
-        LeaveResponse leave = new LeaveResponse();
-        leave.setId(2L);
-        leave.setUserId(1L);
-        leave.setUsername("john.doe");
-        leave.setStartDate(LocalDate.now().plusDays(5));
-        leave.setEndDate(LocalDate.now().plusDays(7));
-        leave.setReason("Medical");
-        leave.setStatus(null);
-        leave.setAppliedOn(LocalDateTime.now());
-        leaves.add(leave);
+   public ResponseEntity<List<LeaveResponse>> getCurrentUserPendingLeaves() {
+        List<LeaveResponse> leaves = leaveService.getCurrentUserPendingLeaves();
         return ResponseEntity.ok(leaves);
-    }
+   }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get leave application by ID")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<LeaveResponse> getLeaveById(@PathVariable Long id) {
-        LeaveResponse response = new LeaveResponse();
-        response.setId(id);
-        response.setUserId(1L);
-        response.setUsername("john.doe");
-        response.setStartDate(LocalDate.now());
-        response.setEndDate(LocalDate.now().plusDays(2));
-        response.setReason("Vacation");
-        response.setStatus(null);
-        response.setAppliedOn(LocalDateTime.now());
+         LeaveResponse response = leaveService.getLeaveById(id);
         return ResponseEntity.ok(response);
     }
 
@@ -108,21 +82,11 @@ public class LeaveController {
         return ResponseEntity.ok("Leave application " + id + " withdrawn.");
     }
 
-    @GetMapping("/history")
+   @GetMapping("/history")
     @Operation(summary = "Get current user's leave history")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<List<LeaveResponse>> getLeaveHistory() {
-        List<LeaveResponse> history = new ArrayList<>();
-        LeaveResponse leave = new LeaveResponse();
-        leave.setId(1L);
-        leave.setUserId(1L);
-        leave.setUsername("john.doe");
-        leave.setStartDate(LocalDate.now().minusDays(30));
-        leave.setEndDate(LocalDate.now().minusDays(28));
-        leave.setReason("Personal");
-        leave.setStatus(null);
-        leave.setAppliedOn(LocalDateTime.now().minusDays(30));
-        history.add(leave);
+        List<LeaveResponse> history = leaveService.getCurrentUserLeaves();
         return ResponseEntity.ok(history);
     }
 
@@ -130,20 +94,10 @@ public class LeaveController {
     @Operation(summary = "Get leave history with optional filters")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<List<LeaveResponse>> getLeaveHistory(
-            @RequestParam(required = false) LocalDate startDate,
-            @RequestParam(required = false) LocalDate endDate,
-            @RequestParam(required = false) String leaveType) {
-        List<LeaveResponse> history = new ArrayList<>();
-        LeaveResponse leave = new LeaveResponse();
-        leave.setId(1L);
-        leave.setUserId(1L);
-        leave.setUsername("john.doe");
-        leave.setStartDate(LocalDate.now().minusDays(30));
-        leave.setEndDate(LocalDate.now().minusDays(28));
-        leave.setReason("Personal");
-        leave.setStatus(null);
-        leave.setAppliedOn(LocalDateTime.now().minusDays(30));
-        history.add(leave);
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) LeaveType leaveType) {
+        List<LeaveResponse> history = leaveService.getLeaveHistory(startDate, endDate, leaveType);
         return ResponseEntity.ok(history);
     }
 
@@ -151,10 +105,19 @@ public class LeaveController {
     @Operation(summary = "Get current user's leave statistics")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<LeaveResponse.LeaveStats> getLeaveStats() {
-        LeaveResponse.LeaveStats stats = new LeaveResponse.LeaveStats();
-        stats.setTotalBalance(15f);
-        stats.setTotalUsed(5f);
-        stats.setPendingLeaves(1);
+        LeaveResponse.LeaveStats stats = leaveService.getCurrentUserLeaveStats();
         return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/calendar")
+    @Operation(summary = "Get leave schedules and holidays for calendar integration")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<List<CalendarEventResponse>> getCalendarEvents(
+            @RequestParam(required = false) Long userId ,
+            @RequestParam(required = false) String department,
+            @RequestParam(required = true) Integer month,
+            @RequestParam(required = true) Integer year) {
+        List<CalendarEventResponse> events = leaveService.getCalendarEvents(userId, department, month, year);
+        return ResponseEntity.ok(events);
     }
 }
