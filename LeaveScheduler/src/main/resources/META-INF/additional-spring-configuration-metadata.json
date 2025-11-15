@@ -6,12 +6,12 @@
   },
   {
     "name": "app.jwt.expiration",
-    "type": "java.lang.String",
+    "type": "java.lang.Long",
     "description": "A description for 'app.jwt.expiration'"
   },
   {
     "name": "leave.auto-approval.timeout-hours",
-    "type": "java.lang.String",
+    "type": "java.lang.Integer",
     "description": "A description for 'leave.auto-approval.timeout-hours'"
   }
 ]}
