@@ -1,4 +1,4 @@
-package com.sap.bits.api.LeaveScheduler.controller;
+package com.sap.bits.api.LeaveScheduler.controller.graphql;
 
 import com.sap.bits.api.LeaveScheduler.dto.request.LeaveApprovalRequest;
 import jakarta.validation.Valid;
