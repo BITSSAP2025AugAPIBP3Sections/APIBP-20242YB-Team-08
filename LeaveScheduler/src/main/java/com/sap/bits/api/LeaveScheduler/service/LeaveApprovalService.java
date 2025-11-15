@@ -221,7 +221,7 @@ public class LeaveApprovalService {
         return response;
     }
 
-    @Value("${leave.auto-approval.timeout-hours:48}") // Default timeout is 48 hours
+    @Value("${leave.auto-approval.timeout-hours}") // Default timeout is 48 hours
     private int autoApprovalTimeoutHours;
 
     /**

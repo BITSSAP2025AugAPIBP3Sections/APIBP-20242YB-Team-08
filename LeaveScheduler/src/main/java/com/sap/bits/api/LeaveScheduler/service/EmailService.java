@@ -37,7 +37,32 @@ public class EmailService {
      */
     @Async
     public void sendLeaveApplicationEmail(LeaveApplication leaveApplication) {
-        logger.info("Sending email for leave application");
+        try {
+            User employee = leaveApplication.getUser();
+            User manager = employee.getManager();
+
+            if (manager == null || manager.getEmail() == null) {
+                return; // Skip if manager email is not available
+            }
+
+            Map<String, Object> templateVariables = new HashMap<>();
+            templateVariables.put("managerName", manager.getFullName());
+            templateVariables.put("employeeName", employee.getFullName());
+            templateVariables.put("leaveType", leaveApplication.getLeaveType());
+            templateVariables.put("startDate", leaveApplication.getStartDate());
+            templateVariables.put("endDate", leaveApplication.getEndDate());
+            templateVariables.put("numberOfDays", leaveApplication.getNumberOfDays());
+            templateVariables.put("reason", leaveApplication.getReason());
+            templateVariables.put("applicationId", leaveApplication.getId());
+
+            String subject = "Leave Application: " + employee.getFullName();
+            String content = processTemplate("leave-application", templateVariables);
+
+            sendEmail(manager.getEmail(), subject, content);
+        } catch (Exception e) {
+            // Log the error but don't propagate - non-critical operation
+            logger.error("Failed to send leave application email: {}", e.getMessage());
+        }
     }
 
     /**
@@ -45,7 +70,32 @@ public class EmailService {
      */
     @Async
     public void sendLeaveApprovedEmail(LeaveApplication leaveApplication) {
-        logger.info("Sending email for leave approval");
+        try {
+            User employee = leaveApplication.getUser();
+            User manager = leaveApplication.getApprovedBy();
+
+            if (employee.getEmail() == null) {
+                return; // Skip if employee email is not available
+            }
+
+            Map<String, Object> templateVariables = new HashMap<>();
+            templateVariables.put("employeeName", employee.getFullName());
+            templateVariables.put("managerName", manager != null ? manager.getFullName() : "Your manager");
+            templateVariables.put("leaveType", leaveApplication.getLeaveType());
+            templateVariables.put("startDate", leaveApplication.getStartDate());
+            templateVariables.put("endDate", leaveApplication.getEndDate());
+            templateVariables.put("numberOfDays", leaveApplication.getNumberOfDays());
+            templateVariables.put("remarks", leaveApplication.getRemarks());
+            templateVariables.put("applicationId", leaveApplication.getId());
+
+            String subject = "Leave Approved: " + leaveApplication.getLeaveType();
+            String content = processTemplate("leave-approved", templateVariables);
+
+            sendEmail(employee.getEmail(), subject, content);
+        } catch (Exception e) {
+            // Log the error but don't propagate - non-critical operation
+            logger.error("Failed to send leave approval email: {}", e.getMessage());
+        }
     }
 
     /**
@@ -53,7 +103,32 @@ public class EmailService {
      */
     @Async
     public void sendLeaveRejectedEmail(LeaveApplication leaveApplication) {
-        logger.info("Sending email for leave rejection");
+        try {
+            User employee = leaveApplication.getUser();
+            User manager = leaveApplication.getApprovedBy();
+
+            if (employee.getEmail() == null) {
+                return; // Skip if employee email is not available
+            }
+
+            Map<String, Object> templateVariables = new HashMap<>();
+            templateVariables.put("employeeName", employee.getFullName());
+            templateVariables.put("managerName", manager != null ? manager.getFullName() : "Your manager");
+            templateVariables.put("leaveType", leaveApplication.getLeaveType());
+            templateVariables.put("startDate", leaveApplication.getStartDate());
+            templateVariables.put("endDate", leaveApplication.getEndDate());
+            templateVariables.put("numberOfDays", leaveApplication.getNumberOfDays());
+            templateVariables.put("remarks", leaveApplication.getRemarks());
+            templateVariables.put("applicationId", leaveApplication.getId());
+
+            String subject = "Leave Rejected: " + leaveApplication.getLeaveType();
+            String content = processTemplate("leave-rejected", templateVariables);
+
+            sendEmail(employee.getEmail(), subject, content);
+        } catch (Exception e) {
+            // Log the error but don't propagate - non-critical operation
+            logger.error("Failed to send leave rejection email: {}", e.getMessage());
+        }
     }
 
     /**
@@ -61,7 +136,31 @@ public class EmailService {
      */
     @Async
     public void sendLeaveWithdrawalEmail(LeaveApplication leaveApplication) {
-        logger.info("Sending email for leave withdrawal");
+        try {
+            User employee = leaveApplication.getUser();
+            User manager = employee.getManager();
+
+            if (manager == null || manager.getEmail() == null) {
+                return; // Skip if manager email is not available
+            }
+
+            Map<String, Object> templateVariables = new HashMap<>();
+            templateVariables.put("managerName", manager.getFullName());
+            templateVariables.put("employeeName", employee.getFullName());
+            templateVariables.put("leaveType", leaveApplication.getLeaveType());
+            templateVariables.put("startDate", leaveApplication.getStartDate());
+            templateVariables.put("endDate", leaveApplication.getEndDate());
+            templateVariables.put("numberOfDays", leaveApplication.getNumberOfDays());
+            templateVariables.put("applicationId", leaveApplication.getId());
+
+            String subject = "Leave Application Withdrawn: " + employee.getFullName();
+            String content = processTemplate("leave-withdrawal", templateVariables);
+
+            sendEmail(manager.getEmail(), subject, content);
+        } catch (Exception e) {
+            // Log the error but don't propagate - non-critical operation
+            logger.error("Failed to send leave withdrawal email: {}", e.getMessage());
+        }
     }
 
     /**
@@ -69,7 +168,23 @@ public class EmailService {
      */
     @Async
     public void sendLeaveCreditEmail(User user) {
-        logger.info("Sending email for leave credit");
+        try {
+            if (user.getEmail() == null) {
+                return; // Skip if user email is not available
+            }
+
+            Map<String, Object> templateVariables = new HashMap<>();
+            templateVariables.put("userName", user.getFullName());
+            templateVariables.put("year", java.time.LocalDate.now().getYear());
+
+            String subject = "Annual Leave Credit Notification";
+            String content = processTemplate("leave-credit", templateVariables);
+
+            sendEmail(user.getEmail(), subject, content);
+        } catch (Exception e) {
+            // Log the error but don't propagate - non-critical operation
+            logger.error("Failed to send leave credit email to {}: {}", user.getEmail(), e.getMessage());
+        }
     }
 
     /**
@@ -77,12 +192,41 @@ public class EmailService {
      */
     @Async
     public void sendSpecialLeaveCreditEmail(User user, LeaveType leaveType, float amount, String reason) {
-        logger.info("Sending email for special leave credit");
+        try {
+            if (user.getEmail() == null) {
+                return; // Skip if user email is not available
+            }
+
+            Map<String, Object> templateVariables = new HashMap<>();
+            templateVariables.put("userName", user.getFullName());
+            templateVariables.put("leaveType", leaveType);
+            templateVariables.put("amount", amount);
+            templateVariables.put("reason", reason);
+
+            String subject = "Special Leave Credit Notification";
+            String content = processTemplate("special-leave-credit", templateVariables);
+
+            sendEmail(user.getEmail(), subject, content);
+        } catch (Exception e) {
+            // Log the error but don't propagate - non-critical operation
+            logger.error("Failed to send special leave credit email to {}: {}", user.getEmail(), e.getMessage());
+        }
     }
 
     @Async
     public void sendResetPasswordEmail(String email, String resetLink) {
-        logger.info("Sending email for password reset");
+        try {
+            Map<String, Object> templateVariables = new HashMap<>();
+            templateVariables.put("resetLink", resetLink);
+
+            String subject = "Reset Your Password";
+            String content = processTemplate("reset-password", templateVariables);
+
+            sendEmail(email, subject, content);
+        } catch (Exception e) {
+            // Log the error but don't propagate - non-critical operation
+            logger.error("Failed to send reset password email to {}: {}", email, e.getMessage());
+        }
     }
 
     /**
