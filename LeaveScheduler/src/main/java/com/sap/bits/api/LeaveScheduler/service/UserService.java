@@ -5,11 +5,12 @@ import com.sap.bits.api.LeaveScheduler.dto.request.PasswordChangeRequest;
 import com.sap.bits.api.LeaveScheduler.dto.response.ApiResponse;
 import com.sap.bits.api.LeaveScheduler.dto.response.LeaveBalanceResponse;
 import com.sap.bits.api.LeaveScheduler.dto.response.UserResponse;
+import com.sap.bits.api.LeaveScheduler.exception.BadRequestException;
+import com.sap.bits.api.LeaveScheduler.exception.ResourceNotFoundException;
 import com.sap.bits.api.LeaveScheduler.model.LeaveBalance;
 import com.sap.bits.api.LeaveScheduler.model.User;
 import com.sap.bits.api.LeaveScheduler.repository.LeaveBalanceRepository;
 import com.sap.bits.api.LeaveScheduler.repository.UserRepository;
-import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,7 +21,6 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
 @Service
 public class UserService {
 
@@ -47,7 +47,7 @@ public class UserService {
      */
     public User getUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
     }
 
     /**
@@ -71,7 +71,7 @@ public class UserService {
     /**
      * Change password
      */
-    public ApiResponse changePassword(PasswordChangeRequest request) throws BadRequestException {
+    public ApiResponse changePassword(PasswordChangeRequest request) {
         User currentUser = getCurrentUser();
 
         // Check if current password matches
