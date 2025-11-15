@@ -1,9 +1,11 @@
 package com.sap.bits.api.LeaveScheduler.service;
 
 import com.sap.bits.api.LeaveScheduler.dto.response.ApiResponse;
+import com.sap.bits.api.LeaveScheduler.model.LeaveBalance;
 import com.sap.bits.api.LeaveScheduler.model.LeavePolicy;
 import com.sap.bits.api.LeaveScheduler.model.User;
 import com.sap.bits.api.LeaveScheduler.model.enums.LeaveType;
+import com.sap.bits.api.LeaveScheduler.model.enums.UserRole;
 import com.sap.bits.api.LeaveScheduler.repository.LeaveBalanceRepository;
 import com.sap.bits.api.LeaveScheduler.repository.LeavePolicyRepository;
 import com.sap.bits.api.LeaveScheduler.repository.UserRepository;
@@ -41,8 +43,24 @@ public class LeaveCreditService {
      */
     @Transactional
     public ApiResponse creditAnnualLeave(Long userId) {
-        // Credit annual leave for the specified user
-        return null;
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<LeavePolicy> policies = new ArrayList<>();
+        for (UserRole role : user.getRoles()) {
+            policies.addAll(leavePolicyRepository.findByApplicableRolesAndActive(role));
+        }
+        int currentYear = LocalDate.now().getYear();
+
+        for (LeavePolicy policy : policies) {
+            creditLeaveForUserAndPolicy(user, policy, currentYear);
+        }
+
+        // Notify user
+        notificationService.createLeaveCreditedNotification(user);
+        emailService.sendLeaveCreditEmail(user);
+
+        return new ApiResponse(true, "Annual leave credited successfully for user: " + user.getFullName());
     }
 
     /**
@@ -50,8 +68,22 @@ public class LeaveCreditService {
      */
     @Transactional
     public ApiResponse creditAnnualLeaveForAllUsers() {
-        // Credit annual leave for all active users
-        return null;
+        List<User> activeUsers = userRepository.findByIsActiveTrue();
+        int currentYear = LocalDate.now().getYear();
+        List<LeavePolicy> allPolicies = leavePolicyRepository.findByIsActiveTrue();
+
+        for (User user : activeUsers) {
+            for (LeavePolicy policy : allPolicies) {
+                if (user.getRoles().stream().anyMatch(policy.getApplicableRoles()::contains)) {
+                    creditLeaveForUserAndPolicy(user, policy, currentYear);
+                    // Notify user
+                    notificationService.createLeaveCreditedNotification(user);
+                    emailService.sendLeaveCreditEmail(user);
+                }
+            }
+        }
+
+        return new ApiResponse(true, "Annual leave credited successfully for all users");
     }
 
     /**
@@ -61,14 +93,66 @@ public class LeaveCreditService {
     @Scheduled(cron = "0 0 0 1 1 *") // Run at midnight on January 1st
     @Transactional
     public void scheduledAnnualLeaveCredit() {
-        // Run annual leave credit for all users at scheduled time
+        creditAnnualLeaveForAllUsers();
     }
 
     /**
      * Helper method to credit leave for a specific user and policy
      */
     private void creditLeaveForUserAndPolicy(User user, LeavePolicy policy, int year) {
-        // Credit leave for the user based on the policy and year
+        // Check if leave balance already exists for this user, leave type and year
+        Optional<LeaveBalance> existingBalance = leaveBalanceRepository.findByUserAndLeaveTypeAndYear(
+                user, policy.getLeaveType(), year);
+
+        if (existingBalance.isPresent()) {
+            LeaveBalance balance = existingBalance.get();
+
+            // Apply carry forward if allowed
+            if (policy.getIsCarryForward() && year > 1) {
+                // Get previous year's balance
+                Optional<LeaveBalance> prevYearBalance = leaveBalanceRepository.findByUserAndLeaveTypeAndYear(
+                        user, policy.getLeaveType(), year - 1);
+
+                if (prevYearBalance.isPresent()) {
+                    float carryForwardAmount = prevYearBalance.get().getBalance();
+
+                    // Apply max accumulation limit if set
+                    if (policy.getMaxAccumulation() != null &&
+                            (balance.getBalance() + carryForwardAmount) > policy.getMaxAccumulation()) {
+                        carryForwardAmount = policy.getMaxAccumulation() - balance.getBalance();
+                    }
+
+                    if (carryForwardAmount > 0) {
+                        balance.setBalance(balance.getBalance() + carryForwardAmount);
+                        balance.setUpdatedAt(LocalDateTime.now());
+                        leaveBalanceRepository.save(balance);
+                    }
+                }
+            } else {
+                // Just add the annual credit
+                balance.setBalance(balance.getBalance() + policy.getAnnualCredit());
+
+                // Apply maximum accrual limit
+                if (policy.getMaxAccumulation() != null &&
+                        balance.getBalance() > policy.getMaxAccumulation()) {
+                    balance.setBalance(policy.getMaxAccumulation());
+                }
+
+                balance.setUpdatedAt(LocalDateTime.now());
+                leaveBalanceRepository.save(balance);
+            }
+        } else {
+            // Create new balance
+            LeaveBalance newBalance = new LeaveBalance();
+            newBalance.setUser(user);
+            newBalance.setLeaveType(policy.getLeaveType());
+            newBalance.setBalance(policy.getAnnualCredit());
+            newBalance.setUsed(0f);
+            newBalance.setYear(year);
+            newBalance.setCreatedAt(LocalDateTime.now());
+            newBalance.setUpdatedAt(LocalDateTime.now());
+            leaveBalanceRepository.save(newBalance);
+        }
     }
 
     /**
@@ -76,7 +160,45 @@ public class LeaveCreditService {
      */
     @Transactional
     public List<ApiResponse> creditSpecialLeave(List<Long> userIds, LeaveType leaveType, float amount, String reason) {
-        // Credit special leave to specified users
-        return null;
+        List<ApiResponse> responses = new ArrayList<>();
+        int currentYear = LocalDate.now().getYear();
+
+        for (Long userId : userIds) {
+            try {
+                User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+
+                Optional<LeaveBalance> existingBalance = leaveBalanceRepository.findByUserAndLeaveTypeAndYear(
+                        user, leaveType, currentYear);
+
+                if (existingBalance.isPresent()) {
+                    LeaveBalance balance = existingBalance.get();
+                    balance.setBalance(balance.getBalance() + amount);
+                    balance.setUpdatedAt(LocalDateTime.now());
+                    leaveBalanceRepository.save(balance);
+                } else {
+                    LeaveBalance newBalance = new LeaveBalance();
+                    newBalance.setUser(user);
+                    newBalance.setLeaveType(leaveType);
+                    newBalance.setBalance(amount);
+                    newBalance.setUsed(0f);
+                    newBalance.setYear(currentYear);
+                    newBalance.setCreatedAt(LocalDateTime.now());
+                    newBalance.setUpdatedAt(LocalDateTime.now());
+                    leaveBalanceRepository.save(newBalance);
+                }
+
+                // Notify user
+                notificationService.createSpecialLeaveCreditedNotification(user, leaveType, amount, reason);
+                emailService.sendSpecialLeaveCreditEmail(user, leaveType, amount, reason);
+
+                responses.add(new ApiResponse(true, "Special leave credited for user: " + user.getFullName()));
+            } catch (Exception e) {
+                responses.add(new ApiResponse(false,
+                        "Failed to credit special leave for user ID: " + userId + ". Error: " + e.getMessage()));
+            }
+        }
+
+        return responses;
     }
 }

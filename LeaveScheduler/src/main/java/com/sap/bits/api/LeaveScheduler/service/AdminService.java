@@ -1,12 +1,13 @@
 package com.sap.bits.api.LeaveScheduler.service;
 
-
 import com.sap.bits.api.LeaveScheduler.dto.request.LeavePolicyRequest;
 import com.sap.bits.api.LeaveScheduler.dto.request.UserUpdateRequest;
 import com.sap.bits.api.LeaveScheduler.dto.response.ApiResponse;
 import com.sap.bits.api.LeaveScheduler.dto.response.DashboardStatsResponse;
 import com.sap.bits.api.LeaveScheduler.dto.response.UserResponse;
+import com.sap.bits.api.LeaveScheduler.exception.ResourceNotFoundException;
 import com.sap.bits.api.LeaveScheduler.model.AuditLog;
+import com.sap.bits.api.LeaveScheduler.model.LeaveApplication;
 import com.sap.bits.api.LeaveScheduler.model.LeavePolicy;
 import com.sap.bits.api.LeaveScheduler.model.User;
 import com.sap.bits.api.LeaveScheduler.model.enums.LeaveStatus;
@@ -15,7 +16,7 @@ import com.sap.bits.api.LeaveScheduler.repository.AuditLogRepository;
 import com.sap.bits.api.LeaveScheduler.repository.LeaveApplicationRepository;
 import com.sap.bits.api.LeaveScheduler.repository.LeavePolicyRepository;
 import com.sap.bits.api.LeaveScheduler.repository.UserRepository;
-import org.apache.coyote.BadRequestException;
+import com.sap.bits.api.LeaveScheduler.exception.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -46,16 +47,39 @@ public class AdminService {
     @Autowired
     private AuditLogRepository auditLogRepository;
 
-    public DashboardStatsResponse getDashboardStats() throws Exception {
+    public DashboardStatsResponse getDashboardStats() {
         User currentUser = userService.getCurrentUser();
 
         // Verify admin role
-        // Total users count
-        // Active users count
-        // Total pending leaves
-        // Role distribution
-        // Recent leave applications
+        if (!currentUser.getRoles().contains(UserRole.ADMIN)) {
+            throw new BadRequestException("You don't have permission to access admin dashboard");
+        }
+
         DashboardStatsResponse stats = new DashboardStatsResponse();
+
+        // Total users count
+        stats.setTotalUsers(userRepository.count());
+
+        // Active users count
+        stats.setActiveUsers(userRepository.findByIsActiveTrue().size());
+
+        // Total pending leaves
+        stats.setPendingLeaves(leaveApplicationRepository.countByUserIdAndStatus(null, LeaveStatus.PENDING));
+
+        // Role distribution
+        Map<UserRole, Long> roleDistribution = new HashMap<>();
+        for (UserRole role : UserRole.values()) {
+            roleDistribution.put(role, (long) userRepository.findByRole(role).size());
+        }
+        stats.setRoleDistribution(roleDistribution);
+
+        // Recent leave applications
+        List<LeaveApplication> recentLeaves = leaveApplicationRepository.findAll().stream()
+                .sorted((l1, l2) -> l2.getCreatedAt().compareTo(l1.getCreatedAt()))
+                .limit(5)
+                .collect(Collectors.toList());
+        stats.setRecentLeaveApplications(recentLeaves);
+
         return stats;
     }
 
@@ -76,10 +100,13 @@ public class AdminService {
         User currentUser = userService.getCurrentUser();
 
         // Verify admin role
-        //Dummy UserResponse return
+        if (!currentUser.getRoles().contains(UserRole.ADMIN)) {
+            throw new BadRequestException("You don't have permission to view all users");
+        }
 
-        List <UserResponse> users = new ArrayList<>();
-        return users;
+        return userRepository.findAll().stream()
+                .map(this::convertToUserResponse)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -90,11 +117,66 @@ public class AdminService {
         User currentUser = userService.getCurrentUser();
 
         // Verify admin role
-        // Update user fields
-        // Check if email is already in use
-        // Validate manager role - must be MANAGER or higher
+        if (!currentUser.getRoles().contains(UserRole.ADMIN)) {
+            throw new BadRequestException("You don't have permission to update user details");
+        }
 
-        User updatedUser = new User();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+        // Update user fields
+        if (request.getFullName() != null) {
+            user.setFullName(request.getFullName());
+        }
+
+        if (request.getEmail() != null) {
+            // Check if email is already in use
+            if (!user.getEmail().equals(request.getEmail()) &&
+                    userRepository.existsByEmail(request.getEmail())) {
+                throw new BadRequestException("Email is already in use");
+            }
+            user.setEmail(request.getEmail());
+        }
+
+        if (request.getDepartment() != null) {
+            user.setDepartment(request.getDepartment());
+        }
+
+        if (request.getRoles() != null) {
+
+            if (!request.getRoles().contains(UserRole.ADMIN) && !currentUser.getRoles().contains(UserRole.ADMIN)) {
+                throw new BadRequestException("You don't have permission to assign this role");
+            }
+            user.setRoles(request.getRoles());
+        }
+
+        if (request.getManagerId() != null) {
+            User manager = userRepository.findById(request.getManagerId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Manager", "id", request.getManagerId()));
+
+            // Validate manager role - must be MANAGER or higher
+            if (!manager.getRoles().contains(UserRole.MANAGER) &&
+                    !manager.getRoles().contains(UserRole.ADMIN)) {
+                throw new BadRequestException("Manager must have MANAGER role or higher");
+            }
+
+            user.setManager(manager);
+        }
+
+        if (request.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        if (request.getIsActive() != null) {
+            user.setActive(request.getIsActive());
+        }
+
+        user.setUpdatedAt(LocalDateTime.now());
+        User updatedUser = userRepository.save(user);
+
+        logAdminAction("UPDATE_USER_DETAILS",
+                "USER ID: " + updatedUser.getId());
+
         return convertToUserResponse(updatedUser);
     }
 
@@ -106,9 +188,40 @@ public class AdminService {
         User currentUser = userService.getCurrentUser();
 
         // Verify admin role
+        if (!currentUser.getRoles().contains(UserRole.ADMIN)) {
+            throw new BadRequestException("You don't have permission to manage leave policies");
+        }
+
+        LeavePolicy leavePolicy;
+
         // Create new or update existing policy
+        if (request.getId() != null) {
+            leavePolicy = leavePolicyRepository.findById(request.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("LeavePolicy", "id", request.getId()));
+        } else {
+            leavePolicy = new LeavePolicy();
+            leavePolicy.setCreatedAt(LocalDateTime.now());
+        }
+
         // Update fields
-        return new LeavePolicy();
+        leavePolicy.setLeaveType(request.getLeaveType());
+        leavePolicy.setDescription(request.getDescription());
+        leavePolicy.setAnnualCredit(request.getAnnualCredit());
+        leavePolicy.setMinDuration(request.getMinDuration());
+        leavePolicy.setMaxDuration(request.getMaxDuration());
+        leavePolicy.setNoticeRequired(request.getNoticeRequired());
+        leavePolicy.setIsCarryForward(request.getIsCarryForward());
+        leavePolicy.setMaxAccumulation(request.getMaxAccumulation());
+        leavePolicy.setApplicableRoles(request.getApplicableRoles());
+        leavePolicy.setIsActive(request.getIsActive());
+        leavePolicy.setUpdatedAt(LocalDateTime.now());
+
+        LeavePolicy savedPolicy = leavePolicyRepository.save(leavePolicy);
+
+        logAdminAction(request.getId() == null ? "CREATE_LEAVE_POLICY" : "UPDATE_LEAVE_POLICY",
+                "Policy ID: " + savedPolicy.getId() + ", Type: " + savedPolicy.getLeaveType());
+
+        return savedPolicy;
     }
 
     /**
@@ -118,8 +231,12 @@ public class AdminService {
         User currentUser = userService.getCurrentUser();
 
         // Verify admin role for detailed access
+        if (!currentUser.getRoles().contains(UserRole.ADMIN)) {
+            throw new BadRequestException("You don't have permission to view leave policy details");
+        }
 
-        return new LeavePolicy();
+        return leavePolicyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("LeavePolicy", "id", id));
     }
 
     /**
@@ -129,7 +246,11 @@ public class AdminService {
         User currentUser = userService.getCurrentUser();
 
         // Verify admin role for full list
-        return new ArrayList<>();
+        if (!currentUser.getRoles().contains(UserRole.ADMIN)) {
+            throw new BadRequestException("You don't have permission to view all leave policies");
+        }
+
+        return leavePolicyRepository.findAll();
     }
 
     /**
@@ -140,16 +261,26 @@ public class AdminService {
         User currentUser = userService.getCurrentUser();
 
         // Verify admin role
+        if (!currentUser.getRoles().contains(UserRole.ADMIN)) {
+            throw new BadRequestException("You don't have permission to delete leave policies");
+        }
+
+        LeavePolicy leavePolicy = leavePolicyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("LeavePolicy", "id", id));
 
         // Check if there are any leave balances using this policy
         if (!leaveApplicationRepository.findAll().isEmpty()) {
             // Instead of deleting, just mark as inactive
+            leavePolicy.setIsActive(false);
+            leavePolicy.setUpdatedAt(LocalDateTime.now());
+            leavePolicyRepository.save(leavePolicy);
             return new ApiResponse(true, "Leave policy marked as inactive successfully");
         }
 
         logAdminAction("DELETE_LEAVE_POLICY",
-                "Policy ID: " + "<Leave policy Id>" + ", Type: " + "<Leave policy Type>");
+                "Policy ID: " + leavePolicy.getId() + ", Type: " + leavePolicy.getLeaveType());
 
+        leavePolicyRepository.delete(leavePolicy);
         return new ApiResponse(true, "Leave policy deleted successfully");
     }
 
