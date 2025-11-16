@@ -4,9 +4,11 @@ import com.sap.bits.api.LeaveScheduler.model.LeaveApplication;
 import com.sap.bits.api.LeaveScheduler.model.Holiday;
 import com.sap.bits.api.LeaveScheduler.model.enums.LeaveStatus;
 import com.sap.bits.api.LeaveScheduler.model.enums.LeaveType;
+import com.sap.bits.api.LeaveScheduler.service.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,11 +24,14 @@ import java.util.List;
 @Tag(name = "Reports", description = "Endpoints for generating and exporting reports")
 public class ReportController {
 
+    @Autowired
+    private ReportService reportService;
+
     @GetMapping("/leave-usage")
     @Operation(summary = "Get leave usage report")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<List<LeaveApplication>> getLeaveUsageReport() {
-        List<LeaveApplication> report = getSampleLeaveApplications();
+        List<LeaveApplication> report = reportService.getLeaveUsageReport();
         return ResponseEntity.ok(report);
     }
 
@@ -34,29 +39,24 @@ public class ReportController {
     @Operation(summary = "Get pending approvals report")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<List<LeaveApplication>> getPendingApprovalsReport() {
-        List<LeaveApplication> pending = new ArrayList<>();
-        for (LeaveApplication leave : getSampleLeaveApplications()) {
-            if (leave.getStatus() == LeaveStatus.PENDING) {
-                pending.add(leave);
-            }
-        }
-        return ResponseEntity.ok(pending);
+        List<LeaveApplication> report = reportService.getPendingApprovalsReport();
+        return ResponseEntity.ok(report);
     }
 
     @GetMapping("/holiday-schedule")
     @Operation(summary = "Get holiday schedule report")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<List<Holiday>> getHolidayScheduleReport() {
-        List<Holiday> holidays = getSampleHolidays();
-        return ResponseEntity.ok(holidays);
+        List<Holiday> report = reportService.getHolidayScheduleReport();
+        return ResponseEntity.ok(report);
     }
 
     @GetMapping("/leave-usage/export/excel")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Export leave usage report to Excel (mocked data)")
-    public ResponseEntity<byte[]> exportLeaveUsageToExcel() {
-        // Just returning dummy byte array for now
-        byte[] excelData = "Dummy Excel Content".getBytes();
+    @Operation(summary = "Export leave usage report to Excel")
+    public ResponseEntity<byte[]> exportLeaveUsageToExcel() throws Exception {
+        List<LeaveApplication> report = reportService.getLeaveUsageReport();
+        byte[] excelData = reportService.exportLeaveUsageToExcel(report);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=leave-usage.xlsx")
@@ -65,66 +65,15 @@ public class ReportController {
     }
 
     @GetMapping("/leave-usage/export/pdf")
-    @Operation(summary = "Export leave usage report to PDF (mocked data)")
+    @Operation(summary = "Export leave usage report to PDF")
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<byte[]> exportLeaveUsageToPDF() {
-        // Just returning dummy byte array for now
-        byte[] pdfData = "Dummy PDF Content".getBytes();
+    public ResponseEntity<byte[]> exportLeaveUsageToPDF() throws Exception {
+        List<LeaveApplication> report = reportService.getLeaveUsageReport();
+        byte[] pdfData = reportService.exportLeaveUsageToPDF(report);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=leave-usage.pdf")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdfData);
-    }
-
-
-    private List<LeaveApplication> getSampleLeaveApplications() {
-        List<LeaveApplication> leaves = new ArrayList<>();
-
-        LeaveApplication leave1 = new LeaveApplication();
-        leave1.setId(1L);
-        leave1.setStartDate(LocalDate.now().minusDays(10));
-        leave1.setEndDate(LocalDate.now().minusDays(8));
-        leave1.setLeaveType(LeaveType.CASUAL);
-        leave1.setReason("Vacation");
-        leave1.setStatus(LeaveStatus.APPROVED);
-        leave1.setAppliedOn(LocalDateTime.now().minusDays(15));
-        leaves.add(leave1);
-
-        LeaveApplication leave2 = new LeaveApplication();
-        leave2.setId(2L);
-        leave2.setStartDate(LocalDate.now().plusDays(2));
-        leave2.setEndDate(LocalDate.now().plusDays(4));
-        leave2.setLeaveType(LeaveType.SICK);
-        leave2.setReason("Medical leave");
-        leave2.setStatus(LeaveStatus.PENDING);
-        leave2.setAppliedOn(LocalDateTime.now().minusDays(1));
-        leaves.add(leave2);
-
-        return leaves;
-    }
-
-    private List<Holiday> getSampleHolidays() {
-        List<Holiday> holidays = new ArrayList<>();
-
-        Holiday h1 = new Holiday();
-        h1.setId(1L);
-        h1.setName("Independence Day");
-        h1.setDate(LocalDate.of(LocalDate.now().getYear(), 8, 15));
-        h1.setType("National");
-        h1.setDescription("Public holiday");
-        h1.setIsRecurring(true);
-        holidays.add(h1);
-
-        Holiday h2 = new Holiday();
-        h2.setId(2L);
-        h2.setName("New Year");
-        h2.setDate(LocalDate.of(LocalDate.now().getYear() + 1, 1, 1));
-        h2.setType("Organizational");
-        h2.setDescription("Start of the new year");
-        h2.setIsRecurring(true);
-        holidays.add(h2);
-
-        return holidays;
     }
 }
