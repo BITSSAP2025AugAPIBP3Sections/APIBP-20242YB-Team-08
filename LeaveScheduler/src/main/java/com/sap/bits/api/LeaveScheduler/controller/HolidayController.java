@@ -1,15 +1,16 @@
 package com.sap.bits.api.LeaveScheduler.controller;
-
 import com.sap.bits.api.LeaveScheduler.dto.response.ApiResponse;
 import com.sap.bits.api.LeaveScheduler.model.Holiday;
 import com.sap.bits.api.LeaveScheduler.service.HolidayService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -17,16 +18,13 @@ import java.util.List;
 @Tag(name = "Holiday Management", description = "Endpoints for managing holidays")
 public class HolidayController {
 
-    private final HolidayService holidayService;
-    
-    public HolidayController(HolidayService holidayService) {
-        this.holidayService = holidayService;
-    }
+    @Autowired
+    private HolidayService holidayService;
 
     @PostMapping
     @Operation(summary = "Create a new holiday (ADMIN only)")
-    // TODO: Add @PreAuthorize("hasRole('ADMIN')") when Spring Security is configured
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Holiday> createHoliday(@Valid @RequestBody Holiday holiday) {
         Holiday createdHoliday = holidayService.createHoliday(holiday);
         return ResponseEntity.ok(createdHoliday);
@@ -34,8 +32,8 @@ public class HolidayController {
 
     @PostMapping("/bulk")
     @Operation(summary = "Create multiple holidays (ADMIN only)")
-    // TODO: Add @PreAuthorize("hasRole('ADMIN')") when Spring Security is configured
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<List<Holiday>> createHolidays(@Valid @RequestBody List<Holiday> holidays) {
         List<Holiday> createdHolidays = holidayService.createHolidays(holidays);
         return ResponseEntity.ok(createdHolidays);
@@ -43,7 +41,7 @@ public class HolidayController {
 
     @GetMapping("/")
     @Operation(summary = "Get all holidays")
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<List<Holiday>> getAllHolidays() {
         List<Holiday> holidays = holidayService.getAllHolidays();
         return ResponseEntity.ok(holidays);
@@ -51,7 +49,7 @@ public class HolidayController {
 
     @GetMapping("/{id:\\d+}")
     @Operation(summary = "Get holiday by ID")
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Holiday> getHolidayById(@PathVariable Long id) {
         Holiday holiday = holidayService.getHolidayById(id);
         return ResponseEntity.ok(holiday);
@@ -59,7 +57,7 @@ public class HolidayController {
 
     @GetMapping("/year/{year}")
     @Operation(summary = "Get holidays by year")
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<List<Holiday>> getHolidaysByYear(@PathVariable Integer year) {
         List<Holiday> holidays = holidayService.getHolidaysByYear(year);
         return ResponseEntity.ok(holidays);
@@ -67,7 +65,7 @@ public class HolidayController {
 
     @GetMapping("/month/{month}/year/{year}")
     @Operation(summary = "Get holidays by month and year")
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<List<Holiday>> getHolidaysByMonthAndYear(
             @PathVariable Integer month,
             @PathVariable Integer year) {
@@ -77,8 +75,8 @@ public class HolidayController {
 
     @PutMapping("/{id:\\d+}")
     @Operation(summary = "Update a holiday (ADMIN only)")
-    // TODO: Add @PreAuthorize("hasRole('ADMIN')") when Spring Security is configured
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Holiday> updateHoliday(
             @PathVariable Long id,
             @Valid @RequestBody Holiday holidayDetails) {
@@ -88,8 +86,8 @@ public class HolidayController {
 
     @DeleteMapping("/{id:\\d+}")
     @Operation(summary = "Delete a holiday (ADMIN only)")
-    // TODO: Add @PreAuthorize("hasRole('ADMIN')") when Spring Security is configured
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ApiResponse> deleteHoliday(@PathVariable Long id) {
         ApiResponse response = holidayService.deleteHoliday(id);
         return ResponseEntity.ok(response);
@@ -97,29 +95,9 @@ public class HolidayController {
 
     @GetMapping("/calendar")
     @Operation(summary = "Get calendar view of holidays")
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<List<Holiday>> getCalendarView() {
         List<Holiday> holidays = holidayService.getAllHolidays();
         return ResponseEntity.ok(holidays);
-    }
-
-    // Additional endpoints based on HolidayService functionality
-    
-    @GetMapping("/date-range")
-    @Operation(summary = "Get holidays between dates")
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
-    public ResponseEntity<List<Holiday>> getHolidaysBetweenDates(
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate) {
-        List<Holiday> holidays = holidayService.getHolidaysBetweenDates(startDate, endDate);
-        return ResponseEntity.ok(holidays);
-    }
-    
-    @GetMapping("/check")
-    @Operation(summary = "Check if a date is a holiday")
-    // TODO: Add @SecurityRequirement(name = "bearerAuth") when security is configured
-    public ResponseEntity<Boolean> isHoliday(@RequestParam LocalDate date) {
-        boolean isHoliday = holidayService.isHoliday(date);
-        return ResponseEntity.ok(isHoliday);
     }
 }
