@@ -2,16 +2,13 @@ package com.sap.bits.api.LeaveScheduler.controller;
 
 import com.sap.bits.api.LeaveScheduler.model.Notification;
 import com.sap.bits.api.LeaveScheduler.dto.response.ApiResponse;
-import com.sap.bits.api.LeaveScheduler.model.User;
-import com.sap.bits.api.LeaveScheduler.model.enums.NotificationType;
+import com.sap.bits.api.LeaveScheduler.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -19,68 +16,30 @@ import java.util.List;
 @Tag(name = "Notification Management", description = "Endpoints for managing notifications")
 public class NotificationController {
 
-    private final List<Notification> mockNotifications = new ArrayList<>();
-
-    public NotificationController() {
-
-        User user = new User();
-        user.setId(1L);
-        user.setEmail("demo.user@example.com");
-
-
-        Notification n1 = new Notification(
-                1L,
-                user,
-                "Leave Approved",
-                "Your leave request has been approved.",
-                NotificationType.LEAVE_APPROVED,
-                101L,
-                false,
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
-
-
-        Notification n2 = new Notification(
-                2L,
-                user,
-                "Leave Rejected",
-                "Your leave request has been rejected.",
-                NotificationType.LEAVE_REJECTED,
-                102L,
-                true,
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
-
-        mockNotifications.add(n1);
-        mockNotifications.add(n2);
-    }
+    @Autowired
+    private NotificationService notificationService;
 
     @GetMapping
     @Operation(summary = "Get current user's notifications")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<List<Notification>> getCurrentUserNotifications() {
-        return ResponseEntity.ok(mockNotifications);
+        List<Notification> notifications = notificationService.getCurrentUserNotifications();
+        return ResponseEntity.ok(notifications);
     }
 
     @GetMapping("/unread")
     @Operation(summary = "Get current user's unread notifications")
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<List<Notification>> getUnreadNotifications() {
-        List<Notification> unread = mockNotifications.stream()
-                .filter(n -> !n.getIsRead())
-                .toList();
-        return ResponseEntity.ok(unread);
+    public ResponseEntity<List<Notification>> getCurrentUserUnreadNotifications() {
+        List<Notification> notifications = notificationService.getCurrentUserUnreadNotifications();
+        return ResponseEntity.ok(notifications);
     }
 
     @GetMapping("/unread-count")
-    @Operation(summary = "Get unread notification count")
+    @Operation(summary = "Get count of unread notifications")
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<Long> getUnreadCount() {
-        long count = mockNotifications.stream()
-                .filter(n -> !n.getIsRead())
-                .count();
+    public ResponseEntity<Long> getCurrentUserUnreadNotificationCount() {
+        long count = notificationService.getCurrentUserUnreadNotificationCount();
         return ResponseEntity.ok(count);
     }
 
@@ -88,24 +47,15 @@ public class NotificationController {
     @Operation(summary = "Mark notification as read")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Notification> markNotificationAsRead(@PathVariable Long id) {
-        for (Notification n : mockNotifications) {
-            if (n.getId().equals(id)) {
-                n.setIsRead(true);
-                n.setUpdatedAt(LocalDateTime.now());
-                return ResponseEntity.ok(n);
-            }
-        }
-        return ResponseEntity.notFound().build();
+        Notification notification = notificationService.markNotificationAsRead(id);
+        return ResponseEntity.ok(notification);
     }
 
     @PutMapping("/read-all")
     @Operation(summary = "Mark all notifications as read")
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<ApiResponse> markAllRead() {
-        mockNotifications.forEach(n -> {
-            n.setIsRead(true);
-            n.setUpdatedAt(LocalDateTime.now());
-        });
+    public ResponseEntity<ApiResponse> markAllNotificationsAsRead() {
+        notificationService.markAllNotificationsAsRead();
         return ResponseEntity.ok(new ApiResponse(true, "All notifications marked as read"));
     }
 }

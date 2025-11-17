@@ -1,9 +1,11 @@
 package com.sap.bits.api.LeaveScheduler.service;
 
+import com.sap.bits.api.LeaveScheduler.exception.ResourceNotFoundException;
 import com.sap.bits.api.LeaveScheduler.model.LeaveApplication;
 import com.sap.bits.api.LeaveScheduler.model.Notification;
 import com.sap.bits.api.LeaveScheduler.model.User;
 import com.sap.bits.api.LeaveScheduler.model.enums.LeaveType;
+import com.sap.bits.api.LeaveScheduler.model.enums.NotificationType;
 import com.sap.bits.api.LeaveScheduler.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,8 +28,18 @@ public class NotificationService {
      */
     @Transactional
     public Notification createLeaveApplicationNotification(User user, LeaveApplication leaveApplication) {
-        // Create and save leave application notification
-        return null;
+        Notification notification = new Notification();
+        notification.setUser(user);
+        notification.setType(NotificationType.LEAVE_APPLICATION);
+        notification.setTitle("New Leave Application");
+        notification.setMessage(leaveApplication.getUser().getFullName() + " has applied for " +
+                leaveApplication.getNumberOfDays() + " days of " + leaveApplication.getLeaveType() + " leave");
+        notification.setIsRead(false);
+        notification.setRelatedEntityId(leaveApplication.getId());
+        notification.setCreatedAt(LocalDateTime.now());
+        notification.setUpdatedAt(LocalDateTime.now());
+
+        return notificationRepository.save(notification);
     }
 
     /**
@@ -35,8 +47,18 @@ public class NotificationService {
      */
     @Transactional
     public Notification createLeaveApprovedNotification(User user, LeaveApplication leaveApplication) {
-        // Create and save leave approval notification
-        return null;
+        Notification notification = new Notification();
+        notification.setUser(user);
+        notification.setType(NotificationType.LEAVE_APPROVED);
+        notification.setTitle("Leave Approved");
+        notification.setMessage("Your application for " + leaveApplication.getNumberOfDays() +
+                " days of " + leaveApplication.getLeaveType() + " leave has been approved");
+        notification.setIsRead(false);
+        notification.setRelatedEntityId(leaveApplication.getId());
+        notification.setCreatedAt(LocalDateTime.now());
+        notification.setUpdatedAt(LocalDateTime.now());
+
+        return notificationRepository.save(notification);
     }
 
     /**
@@ -44,8 +66,18 @@ public class NotificationService {
      */
     @Transactional
     public Notification createLeaveRejectedNotification(User user, LeaveApplication leaveApplication) {
-        // Create and save leave rejection notification
-        return null;
+        Notification notification = new Notification();
+        notification.setUser(user);
+        notification.setType(NotificationType.LEAVE_REJECTED);
+        notification.setTitle("Leave Rejected");
+        notification.setMessage("Your application for " + leaveApplication.getNumberOfDays() +
+                " days of " + leaveApplication.getLeaveType() + " leave has been rejected");
+        notification.setIsRead(false);
+        notification.setRelatedEntityId(leaveApplication.getId());
+        notification.setCreatedAt(LocalDateTime.now());
+        notification.setUpdatedAt(LocalDateTime.now());
+
+        return notificationRepository.save(notification);
     }
 
     /**
@@ -53,8 +85,18 @@ public class NotificationService {
      */
     @Transactional
     public Notification createLeaveWithdrawalNotification(User user, LeaveApplication leaveApplication) {
-        // Create and save leave withdrawal notification
-        return null;
+        Notification notification = new Notification();
+        notification.setUser(user);
+        notification.setType(NotificationType.LEAVE_WITHDRAWN);
+        notification.setTitle("Leave Application Withdrawn");
+        notification.setMessage(leaveApplication.getUser().getFullName() + " has withdrawn their application for " +
+                leaveApplication.getNumberOfDays() + " days of " + leaveApplication.getLeaveType() + " leave");
+        notification.setIsRead(false);
+        notification.setRelatedEntityId(leaveApplication.getId());
+        notification.setCreatedAt(LocalDateTime.now());
+        notification.setUpdatedAt(LocalDateTime.now());
+
+        return notificationRepository.save(notification);
     }
 
     /**
@@ -62,8 +104,16 @@ public class NotificationService {
      */
     @Transactional
     public Notification createLeaveCreditedNotification(User user) {
-        // Create and save leave credited notification
-        return null;
+        Notification notification = new Notification();
+        notification.setUser(user);
+        notification.setType(NotificationType.LEAVE_CREDIT);
+        notification.setTitle("Leave Balance Updated");
+        notification.setMessage("Your annual leave balance has been updated. Please check your balance.");
+        notification.setIsRead(false);
+        notification.setCreatedAt(LocalDateTime.now());
+        notification.setUpdatedAt(LocalDateTime.now());
+
+        return notificationRepository.save(notification);
     }
 
     /**
@@ -72,32 +122,41 @@ public class NotificationService {
     @Transactional
     public Notification createSpecialLeaveCreditedNotification(User user, LeaveType leaveType, float amount,
                                                                String reason) {
-        // Create and save special leave credited notification
-        return null;
+        Notification notification = new Notification();
+        notification.setUser(user);
+        notification.setType(NotificationType.LEAVE_CREDIT);
+        notification.setTitle("Special Leave Credited");
+        notification.setMessage(
+                amount + " days of " + leaveType + " leave has been credited to your account. Reason: " + reason);
+        notification.setIsRead(false);
+        notification.setCreatedAt(LocalDateTime.now());
+        notification.setUpdatedAt(LocalDateTime.now());
+
+        return notificationRepository.save(notification);
     }
 
     /**
      * Get all notifications for current user
      */
     public List<Notification> getCurrentUserNotifications() {
-        // Fetch all notifications for current user
-        return null;
+        User currentUser = userService.getCurrentUser();
+        return notificationRepository.findByUserOrderByCreatedAtDesc(currentUser);
     }
 
     /**
      * Get unread notifications for current user
      */
     public List<Notification> getCurrentUserUnreadNotifications() {
-        // Fetch unread notifications for current user
-        return null;
+        User currentUser = userService.getCurrentUser();
+        return notificationRepository.findByUserAndIsReadFalse(currentUser);
     }
 
     /**
      * Get unread notification count for current user
      */
     public long getCurrentUserUnreadNotificationCount() {
-        // Count unread notifications for current user
-        return 0;
+        User currentUser = userService.getCurrentUser();
+        return notificationRepository.countUnreadNotificationsByUserId(currentUser.getId());
     }
 
     /**
@@ -105,8 +164,18 @@ public class NotificationService {
      */
     @Transactional
     public Notification markNotificationAsRead(Long id) {
-        // Mark notification as read for current user
-        return null;
+        User currentUser = userService.getCurrentUser();
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notification", "id", id));
+
+        // Ensure the notification belongs to the current user
+        if (!notification.getUser().getId().equals(currentUser.getId())) {
+            throw new ResourceNotFoundException("Notification", "id", id);
+        }
+
+        notification.setIsRead(true);
+        notification.setUpdatedAt(LocalDateTime.now());
+        return notificationRepository.save(notification);
     }
 
     /**
@@ -114,6 +183,15 @@ public class NotificationService {
      */
     @Transactional
     public void markAllNotificationsAsRead() {
-        // Mark all notifications as read for current user
+        User currentUser = userService.getCurrentUser();
+        List<Notification> unreadNotifications = notificationRepository.findByUserAndIsReadFalse(currentUser);
+
+        for (Notification notification : unreadNotifications) {
+            notification.setIsRead(true);
+            notification.setUpdatedAt(LocalDateTime.now());
+        }
+
+        notificationRepository.saveAll(unreadNotifications);
+
     }
 }
