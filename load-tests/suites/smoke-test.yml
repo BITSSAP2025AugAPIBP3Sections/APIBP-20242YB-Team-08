@@ -1,0 +1,16 @@
+config:
+  target: "http://localhost:8080"
+  phases:
+    - duration: 15
+      arrivalRate: 2
+scenarios:
+  - name: smoke
+    flow:
+      - get:
+          url: "/api/users/profile"
+          headers:
+            Authorization: "Bearer {{ token }}"
+      - get:
+          url: "/api/users/leave-balance"
+          headers:
+            Authorization: "Bearer {{ token }}"

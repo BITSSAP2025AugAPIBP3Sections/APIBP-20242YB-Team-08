@@ -1,0 +1,16 @@
+config:
+  target: "http://localhost:8080"
+  phases:
+    - duration: 3600
+      arrivalRate: 10
+scenarios:
+  - name: soak-core
+    flow:
+      - get:
+          url: "/api/users/leave-balance"
+          headers:
+            Authorization: "Bearer {{ token }}"
+      - get:
+          url: "/api/leave-applications"
+          headers:
+            Authorization: "Bearer {{ token }}"

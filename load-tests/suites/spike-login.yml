@@ -1,0 +1,19 @@
+config:
+  target: "http://localhost:8080"
+  phases:
+    - duration: 10
+      arrivalRate: 5
+    - duration: 20
+      arrivalRate: 300
+    - duration: 10
+      arrivalRate: 5
+scenarios:
+  - name: spike-login
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            username: "user001"
+            password: "password"
+          expect:
+            - statusCode: 200

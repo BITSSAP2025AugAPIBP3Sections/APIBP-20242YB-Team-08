@@ -1,0 +1,23 @@
+config:
+  target: "http://localhost:8080"
+  phases:
+    - duration: 30
+      arrivalRate: 5
+scenarios:
+  - name: apply-leave
+    flow:
+      - post:
+          url: "{{ api_prefix }}/leave-applications"
+          headers:
+            Authorization: "Bearer {{ token }}"
+            Content-Type: "application/json"
+          json:
+            startDate: "2026-12-10"
+            endDate: "2026-12-12"
+            leaveType: "CASUAL"
+            reason: "Load test leave"
+            contactAddress: "123 Test St"
+            contactPhone: "9999999999"
+          expect:
+            - statusCode: [200,201]
+      - think: 0.5

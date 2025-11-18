@@ -1,0 +1,18 @@
+config:
+  target: "http://localhost:8080"
+  phases:
+    - duration: 300
+      arrivalRate: 20
+scenarios:
+  - name: steady-leave-load
+    flow:
+      - post:
+          url: "/api/leave-applications"
+          headers:
+            Authorization: "Bearer {{ token }}"
+            Content-Type: "application/json"
+          json:
+            startDate: "2026-12-25"
+            endDate: "2026-12-27"
+            leaveType: "CASUAL"
+            reason: "Load test"

@@ -1,0 +1,8 @@
+config:
+  target: "http://localhost:8080"
+  variables:
+    api_prefix: "/api"
+  defaults:
+    headers:
+      Content-Type: "application/json"
+  processor: "./helpers/token-processor.js"

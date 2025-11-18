@@ -1,0 +1,20 @@
+config:
+  target: "http://localhost:8080"
+  phases:
+    - duration: 20
+      arrivalRate: 6
+scenarios:
+  - name: notifications
+    flow:
+      - get:
+          url: "{{ api_prefix }}/notifications"
+          headers:
+            Authorization: "Bearer {{ token }}"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "{{ api_prefix }}/notifications/unread-count"
+          headers:
+            Authorization: "Bearer {{ token }}"
+          expect:
+            - statusCode: 200

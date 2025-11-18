@@ -1,0 +1,14 @@
+config:
+  target: "http://localhost:8080"
+  phases:
+    - duration: 20
+      arrivalRate: 15
+scenarios:
+  - name: get-leave-balance
+    flow:
+      - get:
+          url: "{{ api_prefix }}/users/leave-balance"
+          headers:
+            Authorization: "Bearer {{ token }}"
+          expect:
+            - statusCode: 200

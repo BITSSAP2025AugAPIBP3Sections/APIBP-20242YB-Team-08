@@ -1,0 +1,14 @@
+config:
+  target: "http://localhost:8080"
+  phases:
+    - duration: 20
+      arrivalRate: 10
+scenarios:
+  - name: get-profile
+    flow:
+      - get:
+          url: "{{ api_prefix }}/users/profile"
+          headers:
+            Authorization: "Bearer {{ token }}"
+          expect:
+            - statusCode: 200

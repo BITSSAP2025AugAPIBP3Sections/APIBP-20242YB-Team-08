@@ -1,0 +1,22 @@
+config:
+  target: "http://localhost:8080"
+  phases:
+    - duration: 60
+      arrivalRate: 50
+    - duration: 30
+      arrivalRate: 100
+    - duration: 30
+      arrivalRate: 0
+scenarios:
+  - name: stress-apply-leave
+    flow:
+      - post:
+          url: "/api/leave-applications"
+          headers:
+            Authorization: "Bearer {{ token }}"
+            Content-Type: "application/json"
+          json:
+            startDate: "2026-12-30"
+            endDate: "2027-01-02"
+            leaveType: "CASUAL"
+            reason: "Stress test"
