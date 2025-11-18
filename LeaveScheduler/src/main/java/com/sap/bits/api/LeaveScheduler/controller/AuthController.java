@@ -5,7 +5,8 @@ import java.util.List;
 import com.sap.bits.api.LeaveScheduler.dto.response.JwtResponse;
 import com.sap.bits.api.LeaveScheduler.model.User;
 import com.sap.bits.api.LeaveScheduler.service.AuthService;
-import org.apache.coyote.BadRequestException;
+import com.sap.bits.api.LeaveScheduler.exception.BadRequestException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

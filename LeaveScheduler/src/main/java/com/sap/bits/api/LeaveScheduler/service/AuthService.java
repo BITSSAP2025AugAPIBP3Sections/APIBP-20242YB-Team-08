@@ -22,7 +22,7 @@ import com.sap.bits.api.LeaveScheduler.repository.LeavePolicyRepository;
 import com.sap.bits.api.LeaveScheduler.repository.UserRepository;
 import com.sap.bits.api.LeaveScheduler.security.CustomUserDetails;
 import com.sap.bits.api.LeaveScheduler.security.JwtTokenProvider;
-import org.apache.coyote.BadRequestException;
+import com.sap.bits.api.LeaveScheduler.exception.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
